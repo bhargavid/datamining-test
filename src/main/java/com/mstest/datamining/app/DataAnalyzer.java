@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -28,8 +30,18 @@ public class DataAnalyzer {
 
     private static final String PERF_GRAPH = "PERFORMANCE_GRAPH";
     private static final String ERROR_GRAPH = "ERROR_GRAPH";
-
-    public static void main(String[] args) throws Exception {
+    
+    private static final String TMP_FILE_PATH = "/tmp/datamining-test/";
+    private static final String FILE_FORMAT = ".dat";
+    
+    private static final String TEST_DATA_FILE = "/bank-full-test_30_pct.arff";
+    private static final String TRAINING_DATA_FILE = "/bank-full-training_70_pct_Noise.arff";
+    
+    private static final String perf_file_name = TMP_FILE_PATH+PERF_GRAPH+FILE_FORMAT;
+    private static final String error_file_name = TMP_FILE_PATH+ERROR_GRAPH+FILE_FORMAT;
+    
+    
+    public void run() throws Exception {
         Graph perfGraph = new Graph();
         Graph errorGraph = new Graph();
 
@@ -38,18 +50,31 @@ public class DataAnalyzer {
 
         File perf_file = null;
         File error_file = null;
+        
+        InputStream testFileIn = null;
+        InputStream trainingFileIn = null;
 
         try {
-
-            BufferedReader reader = new BufferedReader(
+            
+            testFileIn = getClass().getResourceAsStream(TEST_DATA_FILE);
+            trainingFileIn = getClass().getResourceAsStream(TRAINING_DATA_FILE);
+            
+            /*BufferedReader reader = new BufferedReader(
                     new FileReader(
                             "C:/MyPC/GATech/MachineLearning/DataSets/bank/bank-full-training_70_pct_Noise.arff"));
-            // BufferedReader reader = new BufferedReader( new
+            */// BufferedReader reader = new BufferedReader( new
             // FileReader("C:/weather.nominal.arff"));
+            
+            BufferedReader reader = new BufferedReader(new InputStreamReader(trainingFileIn));
+            
             Instances train = new Instances(reader);
-            BufferedReader testReader = new BufferedReader(
+            /*BufferedReader testReader = new BufferedReader(
                     new FileReader(
                             "C:/MyPC/GATech/MachineLearning/DataSets/bank/bank-full-test_30_pct.arff"));
+            */
+            
+            BufferedReader testReader = new BufferedReader(new InputStreamReader(testFileIn));
+            
             Instances test = new Instances(testReader);
             train.setClassIndex(train.numAttributes() - 1);
             test.setClassIndex(test.numAttributes() - 1);
@@ -126,8 +151,23 @@ public class DataAnalyzer {
             errorGraph.setY1Axis(ERROR_GRAPH_Y1_AXIS);
             errorGraph.setY2Axis(ERROR_GRAPH_Y2_AXIS);
 
-            perf_file = FileUtil.createDatFile(perfGraph, PERF_GRAPH);
-            error_file = FileUtil.createDatFile(errorGraph, ERROR_GRAPH);
+            File tmp_perf_file = FileUtil.createDatFile(perfGraph, PERF_GRAPH);
+            File tmp_error_file = FileUtil.createDatFile(errorGraph, ERROR_GRAPH);
+                        
+            perf_file = new File(perf_file_name);
+            error_file = new File(error_file_name);
+            
+            //check if the tmp directory exists
+            File theDir = new File(TMP_FILE_PATH);
+            if (!theDir.exists())
+            {
+              System.out.println("creating directory: " + TMP_FILE_PATH);
+              theDir.mkdir();
+            }
+            
+            FileUtil.copyFile(tmp_perf_file, perf_file);
+            FileUtil.copyFile(tmp_error_file, error_file);
+                      
         } catch (IOException ie) {
             System.out.println("IO Exception");
             ie.printStackTrace();
@@ -138,6 +178,17 @@ public class DataAnalyzer {
             if (error_file != null) {
                 error_file.delete();
             }
+            if(trainingFileIn != null) {
+                trainingFileIn.close();
+            }
+            if(testFileIn != null) {
+                testFileIn.close();
+            }
         }
+    }
+
+    public static void main(String[] args) throws Exception {
+        DataAnalyzer analyzer = new DataAnalyzer();
+        analyzer.run();
     }
 }
