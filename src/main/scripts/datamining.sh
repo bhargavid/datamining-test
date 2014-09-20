@@ -1,3 +1,4 @@
+#!/bin/sh
 app=datamining-test
 app_home=$HOME/$app
 
@@ -7,4 +8,4 @@ export CLASSPATH=$CLASSPATH:$app_home:$app_home/*:$jar
 
 cd $app_home && time java ${JVM_ARGS} \
 -classpath $CLASSPATH \
-com.mstest.datamining.app.DataAnalyzer > ./log_file 2>&1
+com.mstest.datamining.app.DataAnalyzerApp --decisiontree > ./log_file 2>&1
