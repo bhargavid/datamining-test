@@ -7,7 +7,8 @@ mvn clean package
 Now create a folder under $HOME
 mkdir $HOME/datamining-test
 
-cp -af target/* $HOME/datamining-test/*
+rm -rf $HOME/datamining-test/*
+cp -af target/* $HOME/datamining-test/.
 
 To execute the program,
 cd $HOME/datamining-test
