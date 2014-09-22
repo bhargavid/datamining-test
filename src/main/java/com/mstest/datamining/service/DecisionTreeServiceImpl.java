@@ -1,5 +1,6 @@
 package com.mstest.datamining.service;
 
+import com.mstest.datamining.app.AppCommandOptions;
 import com.mstest.datamining.model.Axis;
 import com.mstest.datamining.model.Graph;
 import com.mstest.datamining.utils.FileUtil;
@@ -10,6 +11,7 @@ import weka.core.Instances;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -33,12 +35,9 @@ public class DecisionTreeServiceImpl implements DecisionTreeService {
     private static final String TEST_DATA_FILE = "/bank-full-test_30_pct.arff";
     private static final String TRAINING_DATA_FILE = "/bank-full-training_70_pct_Noise.arff";
 
-    private static final String perf_file_name = TMP_FILE_PATH + PERF_GRAPH
-            + FILE_FORMAT;
-    private static final String error_file_name = TMP_FILE_PATH + ERROR_GRAPH
-            + FILE_FORMAT;
 
-    public void run() throws Exception {
+    public void run(Map<String, Object> params_map) throws Exception {
+        String output_dir = (String) params_map.get(AppCommandOptions.OUTPUT_DIR);
         Graph perfGraph = new Graph();
         Graph errorGraph = new Graph();
 
@@ -53,6 +52,8 @@ public class DecisionTreeServiceImpl implements DecisionTreeService {
 
         InputStream testFileIn = null;
         InputStream trainingFileIn = null;
+
+        System.out.println("Executing decision tree algorithm");
 
         try {
 
@@ -166,19 +167,26 @@ public class DecisionTreeServiceImpl implements DecisionTreeService {
             tmp_error_file = FileUtil.createDatFile(errorGraph,
                     ERROR_GRAPH);
 
-            perf_file = new File(perf_file_name);
-            error_file = new File(error_file_name);
+            if(output_dir == null)
+                output_dir = TMP_FILE_PATH;
 
-            // check if the tmp directory exists
-            File theDir = new File(TMP_FILE_PATH);
+            // check if the output directory exists
+            File theDir = new File(output_dir);
             if (!theDir.exists()) {
-                System.out.println("creating directory: " + TMP_FILE_PATH);
+                System.out.println("creating directory: " + output_dir);
                 theDir.mkdir();
             }
 
+            String perf_file_name = output_dir + "/" + PERF_GRAPH
+                    + FILE_FORMAT;
+            String error_file_name = output_dir + "/" + ERROR_GRAPH
+                    + FILE_FORMAT;
+
+            perf_file = new File(perf_file_name);
+            error_file = new File(error_file_name);
+
             FileUtil.copyFile(tmp_perf_file, perf_file);
             FileUtil.copyFile(tmp_error_file, error_file);
-
         } catch (IOException ie) {
             System.out.println("IO Exception");
             ie.printStackTrace();

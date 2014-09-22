@@ -20,7 +20,7 @@ public class FileUtil {
         File tmpFile = File.createTempFile(graph_name, ".dat");
         
         StringBuilder sb = new StringBuilder();
-        sb.append(graph.getXAxis()).append(FS).append(graph.getY1Axis()).append(FS).append(graph.getY2Axis()).append(NEW_LINE);
+        //sb.append(graph.getXAxis()).append(FS).append(graph.getY1Axis()).append(FS).append(graph.getY2Axis()).append(NEW_LINE);
         
         for(Axis axis: graph.getAxisList()) {
             sb.append(axis.getX()).append(FS).append(axis.getY1()).append(FS).append(axis.getY2()).append(NEW_LINE);
