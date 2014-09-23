@@ -17,4 +17,8 @@
     <beans:bean id="dtService"
                 class="com.mstest.datamining.service.DecisionTreeServiceImpl">
     </beans:bean>
+
+    <beans:bean id="mlpService"
+                class="com.mstest.datamining.service.MLPServiceImpl">
+    </beans:bean>
 </beans:beans>

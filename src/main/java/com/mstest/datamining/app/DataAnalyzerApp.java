@@ -1,5 +1,6 @@
 package com.mstest.datamining.app;
 
+import com.mstest.datamining.model.Algorithm;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
@@ -23,21 +24,30 @@ public class DataAnalyzerApp {
     public static void main(String[] argv) {
         System.out.println("Executing the program");
 
-        List<Job> jobList = new ArrayList<Job>();
+        List<Algorithm> jobList = new ArrayList<Algorithm>();
         Map<String, Object> params_map = new HashMap<String, Object>();
         Options options = new Options();
 
         options.addOption(AppCommandOptions.DECISION_TREE, false, "decision trees with pruning");
         options.addOption(AppCommandOptions.OUTPUT_DIR, true, "output directory");
+        options.addOption(AppCommandOptions.CONFIGURE, true, "configure algorithms");
+        options.addOption(AppCommandOptions.MULTILAYER_PERCEPTRON, false, "multi layer perceptron");
+
 
         try {
 
             CommandLineParser parser = new PosixParser();
             CommandLine cmd = parser.parse(options, argv);
 
+            //For now we are supporting only one job
             if (cmd.hasOption(AppCommandOptions.DECISION_TREE)) {
-                System.out.println("Job added "+Job.decisiontrees.toString());
-                jobList.add(Job.decisiontrees);
+                System.out.println("Job added "+Algorithm.decistiontree.getName());
+                jobList.add(Algorithm.decistiontree);
+            }
+
+            if (cmd.hasOption(AppCommandOptions.MULTILAYER_PERCEPTRON)) {
+                System.out.println("Job added "+Algorithm.multilayerperceptron.getName());
+                jobList.add(Algorithm.multilayerperceptron);
             }
 
             String output_dir = cmd.getOptionValue(AppCommandOptions.OUTPUT_DIR);
@@ -48,6 +58,27 @@ public class DataAnalyzerApp {
             String gnuplot_bin = cmd.getOptionValue(AppCommandOptions.GNUPLOT_BIN);
             if(gnuplot_bin != null) {
                 params_map.put(AppCommandOptions.GNUPLOT_BIN, gnuplot_bin);
+            }
+
+            if(cmd.hasOption(AppCommandOptions.CONFIGURE)) {
+                String commands_str = cmd.getOptionValue(AppCommandOptions.CONFIGURE);
+
+                if(commands_str != null) {
+                    //expecting a comma separated value
+                    String[] commands = commands_str.split(",");
+                    for(String command: commands) {
+                        for(Algorithm algorithm: Algorithm.values()) {
+                            if(command.equals(algorithm.getName())) {
+                                jobList.add(algorithm);
+                            }
+                        }
+                    }
+                    params_map.put(AppCommandOptions.CONFIGURE, null);
+                } /*else {
+                    for(Algorithm algorithm: Algorithm.values()) {
+                        jobList.add(algorithm);
+                    }
+                }*/
             }
 
             ApplicationContext context = new ClassPathXmlApplicationContext(CONFIG);

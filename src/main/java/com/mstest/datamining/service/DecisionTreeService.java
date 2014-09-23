@@ -7,5 +7,11 @@ import java.util.Map;
  */
 public interface DecisionTreeService {
 
+    /**
+     * Executes the decision tree algorithm
+     *
+     * @param params_map
+     * @throws Exception
+     */
     public void run(Map<String, Object> params_map) throws Exception;
 }

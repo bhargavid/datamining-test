@@ -1,17 +1,12 @@
 package com.mstest.datamining.service;
 
 import com.mstest.datamining.app.AppCommandOptions;
-import com.mstest.datamining.model.Axis;
-import com.mstest.datamining.model.Config;
-import com.mstest.datamining.model.DataFile;
-import com.mstest.datamining.model.Graph;
+import com.mstest.datamining.model.*;
 import com.mstest.datamining.utils.FileUtil;
 
 import static com.mstest.datamining.utils.CommonUtil.emptyIfNull;
+import static com.mstest.datamining.utils.CommonUtil.fillConfigs;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
@@ -43,12 +38,112 @@ public class DecisionTreeServiceImpl implements DecisionTreeService {
     private static final String TEST_DATA_FILE = "/bank-full-test_30_pct.arff";
     private static final String TRAINING_DATA_FILE = "/bank-full-training_70_pct_Noise.arff";
 
-    private static final String PROPERTIES = "analyzer.properties";
+    private static final String NEW_LINE = "\n";
+    private static final String TAB = "\t";
 
 
     public void run(Map<String, Object> params_map) throws Exception {
-        String output_dir = (String) params_map.get(AppCommandOptions.OUTPUT_DIR);
+        if(params_map.containsKey(AppCommandOptions.CONFIGURE)) {
+            configure(params_map);
+        } else {
+            System.out.println("Executing job decision tree");
+            execute(params_map);
+        }
+    }
 
+    private void configure(Map<String, Object> params_map) throws Exception {
+
+        //TODO for now returning
+        if(true)
+            return;
+
+
+        String output_dir = (String) params_map.get(AppCommandOptions.OUTPUT_DIR);
+        List<DataFile> dataFiles = new ArrayList<DataFile>();
+        List<Config> configs = new ArrayList<Config>();
+
+        boolean systemConfig = false;
+        //fillConfigs(dataFiles, configs, systemConfig);
+
+        if (output_dir == null)
+            output_dir = TMP_FILE_PATH;
+
+        // check if the output directory exists
+        File theDir = new File(output_dir);
+        if (!theDir.exists()) {
+            System.out.println("creating directory: " + output_dir);
+            theDir.mkdir();
+        }
+
+        String output_file = Algorithm.decistiontree.getName()+"_configure"+FILE_FORMAT;
+        output_file = output_dir+"/"+output_file;
+
+        FileWriter fw = new FileWriter(output_file);
+        BufferedWriter bw = new BufferedWriter(fw);
+
+        for (DataFile dataFile : emptyIfNull(dataFiles)) {
+            String training_file_name = dataFile.getTrainingFile();
+            InputStream trainingFileIn;
+
+            System.out
+                    .println("Running for Training File: " + training_file_name);
+            bw.write("Running configuration for file "+training_file_name+"======\n\n");
+
+            for (Config config : emptyIfNull(configs)) {
+                trainingFileIn = getClass().getResourceAsStream("/" + training_file_name);
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(
+                        trainingFileIn));
+
+                Instances train = new Instances(reader);
+                train.setClassIndex(train.numAttributes() - 1);
+
+                StringBuilder sb = new StringBuilder();
+
+                reader.close();
+
+                float v = config.getConfidenceFactor();
+                float original_v = v;
+
+                int i_len = 9;
+                int j_len = 100;
+
+                if(v == (float) 0.1)
+                    i_len = 5;
+
+                for (int i = 1; i <= i_len; i++) {
+                    for (int j = 2; j <= j_len; j += 1) {
+                        J48 j48Classifier = new J48();
+                        j48Classifier.setMinNumObj(j);
+                        j48Classifier.setConfidenceFactor(v);
+                        j48Classifier.buildClassifier(train);
+                        Evaluation trainEval = new Evaluation(train);
+                        trainEval.crossValidateModel(j48Classifier, train, 10, new Random(1));
+
+                        sb.append(NEW_LINE).append("Current Iteration is ").append(i).append(TAB).append(j).append(NEW_LINE);
+                        sb.append(NEW_LINE).append("Confidence Factor: ").append(v).append(TAB).append(" MinNumObj ").append(j).append(NEW_LINE);
+                        sb.append(trainEval.toSummaryString("\n Train Results\n=====\n", false));
+
+                        System.out.println("Current confidence factor" + v);
+                    }
+                    v += original_v;
+                }
+
+                bw.write(sb.toString());
+                if(trainingFileIn != null)
+                    trainingFileIn.close();
+            }
+        }
+
+        if(bw != null)
+            bw.close();
+
+        if(fw != null)
+            fw.close();
+    }
+
+    private void execute(Map<String, Object> params_map) throws Exception{
+        String output_dir = (String) params_map.get(AppCommandOptions.OUTPUT_DIR);
         File perf_file = null;
         File error_file = null;
 
@@ -62,18 +157,22 @@ public class DecisionTreeServiceImpl implements DecisionTreeService {
 
         try {
             //so the idea is run the same set for two different data sets & for two different minnumObj & confidencefactor
-            List<DataFile> dataFiles = new ArrayList<DataFile>();
-            List<Config> configs = new ArrayList<Config>();
+            List<DataConfig> dataConfigs = new ArrayList<DataConfig>();
+            fillConfigs(dataConfigs, Algorithm.decistiontree);
 
-            fillConfigs(dataFiles, configs);
+            for (DataConfig dataConfig: emptyIfNull(dataConfigs)) {
 
-            for (DataFile dataFile : emptyIfNull(dataFiles)) {
+                DataFile dataFile = dataConfig.getDataFile();
+                if(dataFile == null)
+                    continue;
+
                 String training_file_name = dataFile.getTrainingFile();
                 String test_file_name = dataFile.getTestFile();
 
-                System.out.println("Running for Training File: " + training_file_name + " Test File: " + test_file_name);
+                System.out
+                        .println("Running for Training File: " + training_file_name + " Test File: " + test_file_name);
 
-                for (Config config : emptyIfNull(configs)) {
+                for (Config config : emptyIfNull(dataConfig.getConfigList())) {
 
                     testFileIn = getClass().getResourceAsStream("/" + test_file_name);
                     trainingFileIn = getClass().getResourceAsStream("/" + training_file_name);
@@ -105,7 +204,7 @@ public class DecisionTreeServiceImpl implements DecisionTreeService {
                     System.out.println("Training size length: " + train.numInstances());
                     for (int i = 0; i < 20; i++) {
                         int splitTrainSize = (int) Math.round(train.numInstances()
-                                * percent / 100);
+                                                              * percent / 100);
                         Instances splitTrain = new Instances(train, 0, splitTrainSize);
                         splitTrain.setClassIndex(splitTrain.numAttributes() - 1);
                         J48 j48Classifier = new J48();
@@ -146,7 +245,7 @@ public class DecisionTreeServiceImpl implements DecisionTreeService {
                         splitTrainErrorRate = splitTrainEval.errorRate();
                         System.out.println("testPctCorrect" + testPctCorrect);
                         System.out.println("splitTrainPctCorrect"
-                                + splitTrainPctCorrect);
+                                           + splitTrainPctCorrect);
                         System.out.println("testErrorRate" + testErrorRate);
                         System.out.println("splitTrainErrorRate" + splitTrainErrorRate);
 
@@ -196,10 +295,14 @@ public class DecisionTreeServiceImpl implements DecisionTreeService {
                     String data_file_prefix = data_file_prefix_arr[0];
                     String FS = "_";
 
-                    StringBuilder sb = new StringBuilder().append(output_dir).append("/").append(PERF_GRAPH).append(FS).append(data_file_prefix).append(FS).append(minNumObj).append(FS).append(confidenceFactor).append(FILE_FORMAT);
+                    StringBuilder sb = new StringBuilder().append(output_dir).append("/").append(PERF_GRAPH).append(FS)
+                                                          .append(data_file_prefix).append(FS).append(minNumObj)
+                                                          .append(FS).append(confidenceFactor).append(FILE_FORMAT);
                     String perf_file_name = sb.toString();
 
-                    sb = new StringBuilder().append(output_dir).append("/").append(ERR_GRAPH).append(FS).append(data_file_prefix).append(FS).append(minNumObj).append(FS).append(confidenceFactor).append(FILE_FORMAT);
+                    sb = new StringBuilder().append(output_dir).append("/").append(ERR_GRAPH).append(FS)
+                                            .append(data_file_prefix).append(FS).append(minNumObj).append(FS)
+                                            .append(confidenceFactor).append(FILE_FORMAT);
                     String error_file_name = sb.toString();
 
                     perf_file = new File(perf_file_name);
@@ -223,55 +326,8 @@ public class DecisionTreeServiceImpl implements DecisionTreeService {
                     }
                 }
             }
-        } catch (IOException ie) {
-            System.out.println("IO Exception");
-            ie.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    }
-
-    private void fillConfigs(List<DataFile> dataFiles, List<Config> configs) {
-        //Configuration config = new PropertiesConfiguration("usergui.properties");
-        try {
-            Configuration config = new PropertiesConfiguration(PROPERTIES);
-
-            //data.file
-            //minnumobj.confidencefactor
-            List<Object> property_configs = config.getList("minnumobj.confidencefactor");
-            List<Object> property_datafiles = config.getList("data.file");
-
-            //Format => TrainingFile:TestFile,...
-            for (Object property_datafile : emptyIfNull(property_datafiles)) {
-                String tmpFiles = (String) property_datafile;
-                String[] arr = tmpFiles.split(":");
-
-                if (arr != null && arr.length > 0) {
-                    DataFile dataFile = new DataFile();
-                    dataFile.setTrainingFile(arr[0]);
-                    dataFile.setTestFile(arr[1]);
-
-                    dataFiles.add(dataFile);
-                }
-            }
-
-            //Format => minnumobj:confidencefactor,...
-
-            for (Object property_config : emptyIfNull(property_configs)) {
-                String tmpConfigs = (String) property_config;
-                String[] arr = tmpConfigs.split(":");
-
-                if (arr != null && arr.length > 0) {
-                    Config tmpConfig = new Config();
-                    tmpConfig.setMinNumObj(Integer.valueOf(arr[0]));
-                    tmpConfig.setConfidenceFactor(Float.valueOf(arr[1]));
-
-                    configs.add(tmpConfig);
-                }
-            }
-
-        } catch (ConfigurationException ce) {
-            //TODO can we handle this better?
-            ce.printStackTrace();
-        }
-
     }
 }
