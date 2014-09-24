@@ -1,9 +1,6 @@
 package com.mstest.datamining.utils;
 
-import com.mstest.datamining.model.Algorithm;
-import com.mstest.datamining.model.Config;
-import com.mstest.datamining.model.DataConfig;
-import com.mstest.datamining.model.DataFile;
+import com.mstest.datamining.model.*;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -40,6 +37,10 @@ public class CommonUtil {
                     dataConfigs.add(getDataConfig(algorithm, prop, LETTER));
                     break;
 
+                case knn:
+                    dataConfigs.add(getDataConfig(algorithm, prop, BANK));
+                    dataConfigs.add(getDataConfig(algorithm, prop, LETTER));
+                    break;
 
                 default:
                     break;
@@ -52,56 +53,125 @@ public class CommonUtil {
     }
 
     private static DataConfig getDataConfig(Algorithm algorithm, Configuration prop, String dataSet) {
-        DataConfig dataConfig = null;
-        List<Config> configs = new ArrayList<Config>();
+        DataConfig dataConfig = new DataConfig();
         DataFile dataFile = new DataFile();
-        List<Object> configList = null;
+        List<Label> labels = new ArrayList<Label>();
+        Config config = new Config();
 
         switch (algorithm) {
             case decistiontree:
-                dataConfig = new DataConfig();
 
-                if (BANK.equals(dataSet)) {
-                    dataFile.setTestFile(prop.getString("dt.bank.test.file"));
+                if (BANK.equalsIgnoreCase(dataSet)) {
+
                     dataFile.setTrainingFile(prop.getString("dt.bank.training.file"));
+                    dataFile.setTestFile(prop.getString("dt.bank.test.file"));
 
-                    configList = prop.getList("dt.bank.minnumobj.confidencefactor");
-                } else if (LETTER.equals(dataSet)) {
-                    dataFile.setTestFile(prop.getString("dt.letter.test.file"));
+                    dataConfig.setDataFile(dataFile);
+
+                    String dt_bank_config = prop.getString("dt.bank.minnumobj.confidencefactor");
+                    String[] config_arr = dt_bank_config.split(":");
+
+                    Label label = new Label();
+                    label.setName(Constant.MIN_NUM_OBJECT);
+                    label.setValue(Integer.valueOf(config_arr[0]));
+                    labels.add(label);
+
+                    label = new Label();
+                    label.setName(Constant.CONFIDENCE_FACTOR);
+                    label.setValue(Float.valueOf(config_arr[1]));
+                    labels.add(label);
+
+                    config.setLabels(labels);
+
+                    dataConfig.setConfig(config);
+
+                } else if (LETTER.equalsIgnoreCase(dataSet)) {
                     dataFile.setTrainingFile(prop.getString("dt.letter.training.file"));
+                    dataFile.setTestFile(prop.getString("dt.letter.test.file"));
 
-                    configList = prop.getList("dt.letter.minnumobj.confidencefactor");
+                    dataConfig.setDataFile(dataFile);
+
+                    String dt_bank_config = prop.getString("dt.letter.minnumobj.confidencefactor");
+                    String[] config_arr = dt_bank_config.split(":");
+
+                    Label label = new Label();
+                    label.setName(Constant.MIN_NUM_OBJECT);
+                    label.setValue(Integer.valueOf(config_arr[0]));
+                    labels.add(label);
+
+                    label = new Label();
+                    label.setName(Constant.CONFIDENCE_FACTOR);
+                    label.setValue(Float.valueOf(config_arr[1]));
+                    labels.add(label);
+
+                    config.setLabels(labels);
+
+                    dataConfig.setConfig(config);
                 }
-                for (Object bankConfig : configList) {
-                    String[] tmpArr = ((String) bankConfig).split(":");
-
-                    Config config = new Config();
-                    config.setMinNumObj(Integer.valueOf(tmpArr[0]));
-                    config.setConfidenceFactor(Float.valueOf(tmpArr[1]));
-
-                    configs.add(config);
-                }
-                dataConfig.setDataFile(dataFile);
-                dataConfig.setConfigList(configs);
 
                 break;
 
             case multilayerperceptron:
-                dataConfig = new DataConfig();
-                if (BANK.equals(dataSet)) {
-                    dataFile.setTestFile(prop.getString("mlp.bank.test.file"));
+                if (BANK.equalsIgnoreCase(dataSet)) {
+
                     dataFile.setTrainingFile(prop.getString("mlp.bank.training.file"));
-                } else if (LETTER.equals(dataSet)) {
-                    dataFile.setTestFile(prop.getString("mlp.letter.test.file"));
+                    dataFile.setTestFile(prop.getString("mlp.bank.test.file"));
+
+                    dataConfig.setDataFile(dataFile);
+
+                } else if (LETTER.equalsIgnoreCase(dataSet)) {
                     dataFile.setTrainingFile(prop.getString("mlp.letter.training.file"));
+                    dataFile.setTestFile(prop.getString("mlp.letter.test.file"));
+
+                    dataConfig.setDataFile(dataFile);
                 }
 
-                dataConfig.setDataFile(dataFile);
-                dataConfig.setConfigList(configs);
+                break;
+
+            case knn:
+                if (BANK.equalsIgnoreCase(dataSet)) {
+                    dataFile.setTrainingFile(prop.getString("knn.bank.training.file"));
+                    dataFile.setTestFile(prop.getString("knn.bank.test.file"));
+                    dataConfig.setDataFile(dataFile);
+
+
+                    Label label = new Label();
+                    label.setName(Constant.K);
+                    Integer k = prop.getInt("knn.bank.k");
+                    label.setValue(k);
+                    labels.add(label);
+
+                    label = new Label();
+                    label.setName(Constant.DISTANCE);
+                    label.setValue(prop.getString("knn.bank.distance"));
+                    labels.add(label);
+                } else if (LETTER.equalsIgnoreCase(dataSet)) {
+                    dataFile.setTrainingFile(prop.getString("knn.letter.training.file"));
+                    dataFile.setTestFile(prop.getString("knn.letter.test.file"));
+                    dataConfig.setDataFile(dataFile);
+
+
+                    Label label = new Label();
+                    label.setName(Constant.K);
+                    Integer k = prop.getInt("knn.letter.k");
+                    label.setValue(k);
+                    labels.add(label);
+
+                    label = new Label();
+                    label.setName(Constant.DISTANCE);
+                    label.setValue(prop.getString("knn.letter.distance"));
+                    labels.add(label);
+                }
+
+                config.setLabels(labels);
+                dataConfig.setConfig(config);
 
                 break;
+
             default:
                 break;
+
+
         }
 
         return dataConfig;

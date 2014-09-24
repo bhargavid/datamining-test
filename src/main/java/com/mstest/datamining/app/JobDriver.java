@@ -2,6 +2,7 @@ package com.mstest.datamining.app;
 
 import com.mstest.datamining.model.Algorithm;
 import com.mstest.datamining.service.DecisionTreeService;
+import com.mstest.datamining.service.KnnService;
 import com.mstest.datamining.service.MLPService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,6 +23,10 @@ public class JobDriver {
     @Qualifier("mlpService")
     MLPService mlpService;
 
+    @Autowired
+    @Qualifier("knnService")
+    KnnService knnService;
+
     public void processJob(List<Algorithm> algorithms, Map<String, Object> params_map) {
         try {
             for(Algorithm algorithm: algorithms) {
@@ -30,6 +35,9 @@ public class JobDriver {
 
                 if(Algorithm.multilayerperceptron.equals(algorithm))
                     mlpService.run(params_map);
+
+                if(Algorithm.knn.equals(algorithm))
+                    knnService.run(params_map);
             }
         } catch (Exception e) {
             //TODO handle exceptions properly

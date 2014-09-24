@@ -21,4 +21,8 @@
     <beans:bean id="mlpService"
                 class="com.mstest.datamining.service.MLPServiceImpl">
     </beans:bean>
+
+    <beans:bean id="knnService"
+                class="com.mstest.datamining.service.KnnServiceImpl">
+    </beans:bean>
 </beans:beans>

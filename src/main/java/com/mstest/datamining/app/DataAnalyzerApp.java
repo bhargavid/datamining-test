@@ -32,7 +32,7 @@ public class DataAnalyzerApp {
         options.addOption(AppCommandOptions.OUTPUT_DIR, true, "output directory");
         options.addOption(AppCommandOptions.CONFIGURE, true, "configure algorithms");
         options.addOption(AppCommandOptions.MULTILAYER_PERCEPTRON, false, "multi layer perceptron");
-
+        options.addOption(AppCommandOptions.KNN, false, Algorithm.knn.getName());
 
         try {
 
@@ -48,6 +48,11 @@ public class DataAnalyzerApp {
             if (cmd.hasOption(AppCommandOptions.MULTILAYER_PERCEPTRON)) {
                 System.out.println("Job added "+Algorithm.multilayerperceptron.getName());
                 jobList.add(Algorithm.multilayerperceptron);
+            }
+
+            if (cmd.hasOption(AppCommandOptions.KNN)) {
+                System.out.println("Job added "+Algorithm.knn.getName());
+                jobList.add(Algorithm.knn);
             }
 
             String output_dir = cmd.getOptionValue(AppCommandOptions.OUTPUT_DIR);
