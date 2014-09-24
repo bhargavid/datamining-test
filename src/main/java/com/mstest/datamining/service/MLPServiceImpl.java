@@ -69,7 +69,7 @@ public class MLPServiceImpl implements MLPService {
             reader.close();
             testReader.close();
 
-            int trainingtime_increments = 50;
+            int trainingtime_increments = 25;
             int trainingtime = 0;
 /*
             Bank:
@@ -91,7 +91,7 @@ public class MLPServiceImpl implements MLPService {
                 learningRate = new Double(0.3);
             }
 
-            for(int i = 0; i <= 2; i++) {
+            for(int i = 0; i <= 20; i++) {
 
                 Evaluation testEval = new Evaluation(test);
 
@@ -112,7 +112,6 @@ public class MLPServiceImpl implements MLPService {
                 trainEval.crossValidateModel(mlpClassifier, train, 10, new Random(1));
                 testEval.evaluateModel(mlpClassifier, test);
 
-
                 bw.write(trainEval.toSummaryString("\n Train Results\n======\n", false));
                 bw.write(testEval.toSummaryString("\n Test Results\n=====\n", false));
                 bw.write(
@@ -131,6 +130,12 @@ public class MLPServiceImpl implements MLPService {
             if(trainingFileIn != null)
                 trainingFileIn.close();
         }
+
+        if(bw != null)
+            bw.close();
+
+        if(fw != null)
+            fw.close();
     }
 
     private void configure(Map<String, Object> params_map) {
