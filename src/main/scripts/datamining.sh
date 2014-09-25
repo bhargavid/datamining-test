@@ -2,11 +2,14 @@
 app=datamining-test
 app_home=$HOME/$app
 
-while getopts o:d flag
+while getopts "dmko:a" flag
 do
     case "$flag" in
         o) output_dir=$OPTARG;;
         d) decision_tree=1;;
+        m) mlp=1;;
+        k) knn=1;;
+        a) adaboost=1;;
         *) echo "Invalid arg";;
     esac
 done
@@ -19,6 +22,22 @@ if [[ ! -z $decision_tree ]]
 then
     ALGORITHM="--decisiontree"
 fi
+
+if [[ ! -z $mlp ]]
+then
+    ALGORITHM="--multilayerperceptron"
+fi
+
+if [[ ! -z $knn ]]
+then
+    ALGORITHM="--knn"
+fi
+
+if [[ ! -z $adaboost ]]
+then
+    ALGORITHM="--adaboost"
+fi
+
 
 jar=$app_home/datamining-test.dependencies.jar
 

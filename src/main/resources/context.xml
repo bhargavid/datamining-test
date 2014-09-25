@@ -25,4 +25,8 @@
     <beans:bean id="knnService"
                 class="com.mstest.datamining.service.KnnServiceImpl">
     </beans:bean>
+
+    <beans:bean id="adaBoostService"
+                class="com.mstest.datamining.service.AdaBoostServiceImpl">
+    </beans:bean>
 </beans:beans>

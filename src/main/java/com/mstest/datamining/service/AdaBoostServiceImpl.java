@@ -1,29 +1,30 @@
 package com.mstest.datamining.service;
 
-import static com.mstest.datamining.utils.CommonUtil.emptyIfNull;
-import static com.mstest.datamining.utils.CommonUtil.fillConfigs;
-
 import com.mstest.datamining.app.AppCommandOptions;
 import com.mstest.datamining.model.*;
-
 import com.mstest.datamining.utils.FileUtil;
 import weka.core.Instances;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static com.mstest.datamining.utils.CommonUtil.fillConfigs;
+
 /**
- * Created by bloganathan on 9/22/14.
+ * Created by bloganathan on 9/24/14.
  */
-public class MLPServiceImpl implements MLPService {
-    private static final String PERF_GRAPH_X_AXIS = "TRAINING_TIME";
+public class AdaBoostServiceImpl implements AdaBoostService {
+    private static final String PERF_GRAPH_X_AXIS = "ITERATION";
     private static final String PERF_GRAPH_Y1_AXIS = "PERFORMANCE_TEST_DATA";
     private static final String PERF_GRAPH_Y2_AXIS = "PERFORAMANCE_TRAINING_DATA";
 
-    private static final String ERROR_GRAPH_X_AXIS = "TRAINING_TIME";
+    private static final String ERROR_GRAPH_X_AXIS = "ITERATION";
     private static final String ERROR_GRAPH_Y1_AXIS = "ERROR_TEST_DATA";
     private static final String ERROR_GRAPH_Y2_AXIS = "ERROR_TRAINING_DATA";
 
@@ -32,33 +33,36 @@ public class MLPServiceImpl implements MLPService {
 
     private static final String FILE_FORMAT = ".dat";
 
-    private static final String TMP_FILE_PATH = "/tmp/datamining-test/mlp";
+    private static final String TMP_FILE_PATH = "/tmp/datamining-test/adaboost";
 
     @Override
     public void run(Map<String, Object> params_map) throws Exception {
-        if(params_map.containsKey(AppCommandOptions.CONFIGURE)) {
-            configure(params_map);
-        } else {
-            System.out.println("Executing job mlp");
-            execute(params_map);
-        }
-    }
-
-    private void execute(Map<String, Object> params_map) throws Exception {
-        String output_dir = (String) params_map.get(AppCommandOptions.OUTPUT_DIR);
-        if (output_dir == null)
-            output_dir = TMP_FILE_PATH;
-
-        List<DataConfig> dataConfigs = new ArrayList<DataConfig>();
-        fillConfigs(dataConfigs, Algorithm.multilayerperceptron);
+        System.out.println("Executing adaboost algorithm");
 
         InputStream testFileIn = null;
         InputStream trainingFileIn = null;
 
-        for(DataConfig dataConfig: emptyIfNull(dataConfigs)) {
+        String output_dir = (String) params_map.get(AppCommandOptions.OUTPUT_DIR);
+        if (output_dir == null)
+            output_dir = TMP_FILE_PATH;
+
+        // check if the output directory exists
+        File theDir = new File(output_dir);
+        if (!theDir.exists()) {
+            System.out.println("creating output directory: " + output_dir);
+            theDir.mkdir();
+        }
+
+        List<DataConfig> dataConfigs = new ArrayList<DataConfig>();
+        fillConfigs(dataConfigs, Algorithm.adaboost);
+
+        for(DataConfig dataConfig: dataConfigs) {
             List<Axis> perf_points = new ArrayList<Axis>();
             List<Axis> error_points = new ArrayList<Axis>();
 
+            DataFile dataFile = dataConfig.getDataFile();
+            if (dataFile == null)
+                continue;
 
             testFileIn = getClass().getResourceAsStream("/" + dataConfig.getDataFile().getTestFile());
             trainingFileIn = getClass().getResourceAsStream("/" + dataConfig.getDataFile().getTrainingFile());
@@ -77,33 +81,31 @@ public class MLPServiceImpl implements MLPService {
             reader.close();
             testReader.close();
 
-            int trainingtime_increments = 25;
-            int trainingtime = 0;
-
-            String meanHiddenLayerStr = null;
-            Double momentum = null;
-            Double learningRate = null;
+            Integer minNumObject = null;
+            Float confidenceFactor = null;
 
             for(Label label: dataConfig.getConfig().getLabels()) {
-                if(Constant.HIDDENLAYER.equalsIgnoreCase(label.getName()))
-                    meanHiddenLayerStr = (String) label.getValue();
-                if(Constant.MOMENTUM.equalsIgnoreCase(label.getName()))
-                    momentum = (Double) label.getValue();
-                if(Constant.LEARNING_RATE.equalsIgnoreCase(label.getName()))
-                    learningRate = (Double) label.getValue();
+                if(Constant.MIN_NUM_OBJECT.equalsIgnoreCase(label.getName()))
+                    minNumObject = (Integer) label.getValue();
+                if(Constant.CONFIDENCE_FACTOR.equalsIgnoreCase(label.getName()))
+                    confidenceFactor = (Float) label.getValue();
             }
+
+            int iteration = 25;
+            int iteration_increments = 25;
 
             ExecutorService pool = Executors.newFixedThreadPool(10);
-            Collection<MLPExecutor> collection = new ArrayList<MLPExecutor>();
+            Collection<AdaBoostExecutor> tasks = new ArrayList<AdaBoostExecutor>();
 
-            for(int i = 0; i <= 20; i++) {
-                MLPExecutor mlpExecutor = new MLPExecutor(meanHiddenLayerStr, momentum, learningRate, trainingtime, train, test);
-                collection.add(mlpExecutor);
-
-                trainingtime += trainingtime_increments;
+            //TODO may be need to produce different instances of train & test every time?
+            for(int i = 0; i < 20; i++) {
+                System.out.println("\n Current Iteration is i:" + i);
+                AdaBoostExecutor task = new AdaBoostExecutor(minNumObject, confidenceFactor, iteration, train, test);
+                tasks.add(task);
+                iteration += iteration_increments;
             }
 
-            List< Future<Plot> > futures = pool.invokeAll(collection);
+            List<Future<Plot>> futures =  pool.invokeAll(tasks);
 
             for(Future<Plot> future: futures) {
                 Plot plot = future.get();
@@ -111,14 +113,10 @@ public class MLPServiceImpl implements MLPService {
                 if(plot != null) {
                     perf_points.add(plot.getPerfPoint());
                     error_points.add(plot.getErrorPoint());
-                } else {
-                    System.out.println("Failed");
                 }
             }
 
             pool.shutdown();
-
-            System.out.println("Completing threads");
 
             Graph perfGraph = new Graph();
             Graph errorGraph = new Graph();
@@ -142,7 +140,7 @@ public class MLPServiceImpl implements MLPService {
             String perf_file_name = sb.toString();
 
             sb = new StringBuilder().append(output_dir).append("/").append(ERR_GRAPH).append(FS)
-                                                  .append(data_file_prefix).append(FILE_FORMAT);
+                                    .append(data_file_prefix).append(FILE_FORMAT);
             String error_file_name = sb.toString();
 
             FileUtil.createPlotFile(perfGraph, perf_file_name);
@@ -154,11 +152,15 @@ public class MLPServiceImpl implements MLPService {
             if(trainingFileIn != null)
                 trainingFileIn.close();
         }
-
-        return;
     }
 
-    private void configure(Map<String, Object> params_map) {
-        //TODO implement this
+    private Axis getAxis(Double x, Double y1, Double y2) {
+        Axis axis = new Axis();
+
+        axis.setX(x);
+        axis.setY1(y1);
+        axis.setY2(y2);
+
+        return axis;
     }
 }

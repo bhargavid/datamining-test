@@ -33,15 +33,8 @@ public class DecisionTreeServiceImpl implements DecisionTreeService {
     private static final String PERF_GRAPH = "PERF_GRAPH";
     private static final String ERR_GRAPH = "ERR_GRAPH";
 
-    private static final String TMP_FILE_PATH = "/tmp/datamining-test/";
+    private static final String TMP_FILE_PATH = "/tmp/datamining-test/decisiontree";
     private static final String FILE_FORMAT = ".dat";
-
-    private static final String TEST_DATA_FILE = "/bank-full-test_30_pct.arff";
-    private static final String TRAINING_DATA_FILE = "/bank-full-training_70_pct_Noise.arff";
-
-    private static final String NEW_LINE = "\n";
-    private static final String TAB = "\t";
-
 
     public void run(Map<String, Object> params_map) throws Exception {
         if(params_map.containsKey(AppCommandOptions.CONFIGURE)) {

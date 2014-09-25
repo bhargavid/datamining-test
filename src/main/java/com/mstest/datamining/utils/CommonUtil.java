@@ -42,6 +42,11 @@ public class CommonUtil {
                     dataConfigs.add(getDataConfig(algorithm, prop, LETTER));
                     break;
 
+                case adaboost:
+                    dataConfigs.add(getDataConfig(algorithm, prop, BANK));
+                    dataConfigs.add(getDataConfig(algorithm, prop, LETTER));
+                    break;
+
                 default:
                     break;
             }
@@ -116,15 +121,46 @@ public class CommonUtil {
 
                     dataFile.setTrainingFile(prop.getString("mlp.bank.training.file"));
                     dataFile.setTestFile(prop.getString("mlp.bank.test.file"));
-
                     dataConfig.setDataFile(dataFile);
+
+                    Label label = new Label();
+                    label.setName(Constant.HIDDENLAYER);
+                    label.setValue(prop.getString("mlp.bank.hiddenlayer"));
+                    labels.add(label);
+
+                    label = new Label();
+                    label.setName(Constant.MOMENTUM);
+                    label.setValue(prop.getDouble("mlp.bank.momentum"));
+                    labels.add(label);
+
+                    label = new Label();
+                    label.setName(Constant.LEARNING_RATE);
+                    label.setValue(prop.getDouble("mlp.bank.learning_rate"));
+                    labels.add(label);
 
                 } else if (LETTER.equalsIgnoreCase(dataSet)) {
                     dataFile.setTrainingFile(prop.getString("mlp.letter.training.file"));
                     dataFile.setTestFile(prop.getString("mlp.letter.test.file"));
-
                     dataConfig.setDataFile(dataFile);
+
+                    Label label = new Label();
+                    label.setName(Constant.HIDDENLAYER);
+                    label.setValue(prop.getString("mlp.letter.hiddenlayer"));
+                    labels.add(label);
+
+                    label = new Label();
+                    label.setName(Constant.MOMENTUM);
+                    label.setValue(prop.getDouble("mlp.letter.momentum"));
+                    labels.add(label);
+
+                    label = new Label();
+                    label.setName(Constant.LEARNING_RATE);
+                    label.setValue(prop.getDouble("mlp.letter.learning_rate"));
+                    labels.add(label);
                 }
+
+                config.setLabels(labels);
+                dataConfig.setConfig(config);
 
                 break;
 
@@ -166,6 +202,56 @@ public class CommonUtil {
                 config.setLabels(labels);
                 dataConfig.setConfig(config);
 
+                break;
+
+            case adaboost:
+                if (BANK.equalsIgnoreCase(dataSet)) {
+
+                    dataFile.setTrainingFile(prop.getString("adaboost.bank.training.file"));
+                    dataFile.setTestFile(prop.getString("adaboost.bank.test.file"));
+
+                    dataConfig.setDataFile(dataFile);
+
+                    String dt_bank_config = prop.getString("adaboost.bank.minnumobj.confidencefactor");
+                    String[] config_arr = dt_bank_config.split(":");
+
+                    Label label = new Label();
+                    label.setName(Constant.MIN_NUM_OBJECT);
+                    label.setValue(Integer.valueOf(config_arr[0]));
+                    labels.add(label);
+
+                    label = new Label();
+                    label.setName(Constant.CONFIDENCE_FACTOR);
+                    label.setValue(Float.valueOf(config_arr[1]));
+                    labels.add(label);
+
+                    config.setLabels(labels);
+
+                    dataConfig.setConfig(config);
+
+                } else if (LETTER.equalsIgnoreCase(dataSet)) {
+                    dataFile.setTrainingFile(prop.getString("adaboost.letter.training.file"));
+                    dataFile.setTestFile(prop.getString("adaboost.letter.test.file"));
+
+                    dataConfig.setDataFile(dataFile);
+
+                    String dt_bank_config = prop.getString("adaboost.letter.minnumobj.confidencefactor");
+                    String[] config_arr = dt_bank_config.split(":");
+
+                    Label label = new Label();
+                    label.setName(Constant.MIN_NUM_OBJECT);
+                    label.setValue(Integer.valueOf(config_arr[0]));
+                    labels.add(label);
+
+                    label = new Label();
+                    label.setName(Constant.CONFIDENCE_FACTOR);
+                    label.setValue(Float.valueOf(config_arr[1]));
+                    labels.add(label);
+
+                    config.setLabels(labels);
+
+                    dataConfig.setConfig(config);
+                }
                 break;
 
             default:

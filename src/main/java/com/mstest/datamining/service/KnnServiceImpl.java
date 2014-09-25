@@ -24,18 +24,20 @@ import static com.mstest.datamining.utils.CommonUtil.fillConfigs;
  * Created by bloganathan on 9/23/14.
  */
 public class KnnServiceImpl implements KnnService {
-    private static final String PERF_GRAPH_X_AXIS = "TRAINING_SIZE";
+    private static final String PERF_GRAPH_X_AXIS_1 = "TRAINING_SIZE";
+    private static final String PERF_GRAPH_X_AXIS_2 = "K";
     private static final String PERF_GRAPH_Y1_AXIS = "PERFORMANCE_TEST_DATA";
     private static final String PERF_GRAPH_Y2_AXIS = "PERFORAMANCE_TRAINING_DATA";
 
-    private static final String ERROR_GRAPH_X_AXIS = "TRAINING_SIZE";
+    private static final String ERROR_GRAPH_X_AXIS_1 = "TRAINING_SIZE";
+    private static final String ERROR_GRAPH_X_AXIS_2 = "TRAINING_SIZE";
     private static final String ERROR_GRAPH_Y1_AXIS = "ERROR_TEST_DATA";
     private static final String ERROR_GRAPH_Y2_AXIS = "ERROR_TRAINING_DATA";
 
     private static final String PERF_GRAPH = "PERF_GRAPH";
     private static final String ERR_GRAPH = "ERR_GRAPH";
 
-    private static final String TMP_FILE_PATH = "/tmp/knn-test/";
+    private static final String TMP_FILE_PATH = "/tmp/datamining-test/knn";
     private static final String FILE_FORMAT = ".dat";
 
     @Override
@@ -231,27 +233,33 @@ public class KnnServiceImpl implements KnnService {
                     }
                 }
 
-
+                String variation = null;
+                String x_axis_perf = null;
+                String x_axis_error = null;
+                if(indx == 1) {
+                    x_axis_perf = PERF_GRAPH_X_AXIS_1;
+                    x_axis_error = ERROR_GRAPH_X_AXIS_1;
+                    variation = "splittrain";
+                }
+                else if(indx == 2) {
+                    x_axis_error = PERF_GRAPH_X_AXIS_2;
+                    x_axis_error = ERROR_GRAPH_X_AXIS_2;
+                    variation = "k";
+                }
 
                 perfGraph.setAxisList(perf_points);
-                perfGraph.setXAxis(PERF_GRAPH_X_AXIS);
+                perfGraph.setXAxis(x_axis_perf);
                 perfGraph.setY1Axis(PERF_GRAPH_Y1_AXIS);
                 perfGraph.setY2Axis(PERF_GRAPH_Y2_AXIS);
 
                 errorGraph.setAxisList(error_points);
-                errorGraph.setXAxis(ERROR_GRAPH_X_AXIS);
+                errorGraph.setXAxis(x_axis_error);
                 errorGraph.setY1Axis(ERROR_GRAPH_Y1_AXIS);
                 errorGraph.setY2Axis(ERROR_GRAPH_Y2_AXIS);
 
                 tmp_perf_file = FileUtil.createDatFile(perfGraph, PERF_GRAPH);
                 tmp_error_file = FileUtil.createDatFile(errorGraph,
                         ERR_GRAPH);
-
-                String variation = null;
-                if(indx == 1)
-                    variation = "splittrain";
-                else if(indx == 2)
-                    variation = "k";
 
                 String[] data_file_prefix_arr = training_file_name.split("_");
                 String data_file_prefix = data_file_prefix_arr[0];

@@ -1,6 +1,7 @@
 package com.mstest.datamining.app;
 
 import com.mstest.datamining.model.Algorithm;
+import com.mstest.datamining.service.AdaBoostService;
 import com.mstest.datamining.service.DecisionTreeService;
 import com.mstest.datamining.service.KnnService;
 import com.mstest.datamining.service.MLPService;
@@ -27,6 +28,10 @@ public class JobDriver {
     @Qualifier("knnService")
     KnnService knnService;
 
+    @Autowired
+    @Qualifier("adaBoostService")
+    AdaBoostService adaBoostService;
+
     public void processJob(List<Algorithm> algorithms, Map<String, Object> params_map) {
         try {
             for(Algorithm algorithm: algorithms) {
@@ -38,6 +43,9 @@ public class JobDriver {
 
                 if(Algorithm.knn.equals(algorithm))
                     knnService.run(params_map);
+
+                if(Algorithm.adaboost.equals(algorithm))
+                    adaBoostService.run(params_map);
             }
         } catch (Exception e) {
             //TODO handle exceptions properly

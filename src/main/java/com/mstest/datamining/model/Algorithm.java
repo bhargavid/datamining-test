@@ -6,7 +6,8 @@ package com.mstest.datamining.model;
 public enum Algorithm {
     decistiontree("decisiontree"),
     multilayerperceptron("multilayerperceptron"),
-    knn("knn");
+    knn("knn"),
+    adaboost("adaboost");
 
     private String name;
 

@@ -10,4 +10,7 @@ public class Constant {
     public static final String DISTANCE = "distance";
     public static final String MANHATTAN_DISTANCE = "ManhattanDistance";
     public static final String EUCLIDEAN_DISTANCE = "EuclideanDistance";
+    public static final String HIDDENLAYER = "hiddenlayer";
+    public static final String MOMENTUM = "momentum";
+    public static final String LEARNING_RATE = "learning_rate";
 }

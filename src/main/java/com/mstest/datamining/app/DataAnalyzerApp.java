@@ -33,6 +33,7 @@ public class DataAnalyzerApp {
         options.addOption(AppCommandOptions.CONFIGURE, true, "configure algorithms");
         options.addOption(AppCommandOptions.MULTILAYER_PERCEPTRON, false, "multi layer perceptron");
         options.addOption(AppCommandOptions.KNN, false, Algorithm.knn.getName());
+        options.addOption(AppCommandOptions.ADABOOST, false, Algorithm.adaboost.getName());
 
         try {
 
@@ -55,17 +56,17 @@ public class DataAnalyzerApp {
                 jobList.add(Algorithm.knn);
             }
 
+            if (cmd.hasOption(AppCommandOptions.ADABOOST)) {
+                System.out.println("Job added "+Algorithm.adaboost.getName());
+                jobList.add(Algorithm.adaboost);
+            }
+
             String output_dir = cmd.getOptionValue(AppCommandOptions.OUTPUT_DIR);
             if(output_dir != null) {
                 params_map.put(AppCommandOptions.OUTPUT_DIR, output_dir);
             }
 
-            String gnuplot_bin = cmd.getOptionValue(AppCommandOptions.GNUPLOT_BIN);
-            if(gnuplot_bin != null) {
-                params_map.put(AppCommandOptions.GNUPLOT_BIN, gnuplot_bin);
-            }
-
-            if(cmd.hasOption(AppCommandOptions.CONFIGURE)) {
+/*            if(cmd.hasOption(AppCommandOptions.CONFIGURE)) {
                 String commands_str = cmd.getOptionValue(AppCommandOptions.CONFIGURE);
 
                 if(commands_str != null) {
@@ -79,12 +80,12 @@ public class DataAnalyzerApp {
                         }
                     }
                     params_map.put(AppCommandOptions.CONFIGURE, null);
-                } /*else {
+                } else {
                     for(Algorithm algorithm: Algorithm.values()) {
                         jobList.add(algorithm);
                     }
-                }*/
-            }
+                }
+            }*/
 
             ApplicationContext context = new ClassPathXmlApplicationContext(CONFIG);
             JobDriver driver = (JobDriver) context.getBean(BEAN_NAME);
