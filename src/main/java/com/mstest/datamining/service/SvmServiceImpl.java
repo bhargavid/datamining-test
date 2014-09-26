@@ -1,16 +1,26 @@
 package com.mstest.datamining.service;
 
 import com.mstest.datamining.app.AppCommandOptions;
-import com.mstest.datamining.model.Algorithm;
-import com.mstest.datamining.model.DataConfig;
+import com.mstest.datamining.model.*;
 import com.mstest.datamining.utils.FileUtil;
+import weka.classifiers.Evaluation;
+import weka.classifiers.functions.LibSVM;
+import weka.classifiers.functions.SMO;
+import weka.classifiers.functions.supportVector.PolyKernel;
+import weka.classifiers.functions.supportVector.RBFKernel;
+import weka.core.Instances;
+import weka.core.SelectedTag;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
+import static com.mstest.datamining.utils.CommonUtil.emptyIfNull;
 import static com.mstest.datamining.utils.CommonUtil.fillConfigs;
 
 /**
@@ -30,10 +40,12 @@ public class SvmServiceImpl implements SvmService{
 
     private static final String FILE_FORMAT = ".dat";
 
-    private static final String TMP_FILE_PATH = "/tmp/datamining-test/svm";
+    private static final String TMP_FILE_PATH = "/tmp/datamining-test/"+Algorithm.svm.getName();
 
     @Override
     public void run(Map<String, Object> params_map) throws Exception {
+        System.out.println("Executing SVM");
+
         String output_dir = (String) params_map.get(AppCommandOptions.OUTPUT_DIR);
         if (output_dir == null)
             output_dir = TMP_FILE_PATH;
@@ -51,6 +63,220 @@ public class SvmServiceImpl implements SvmService{
 
         InputStream testFileIn = null;
         InputStream trainingFileIn = null;
+
+        for(DataConfig dataConfig: dataConfigs) {
+            DataFile dataFile = dataConfig.getDataFile();
+            List<Config> configs = dataConfig.getConfigs();
+
+            if (dataFile == null || configs == null || configs.isEmpty())
+                continue;
+
+            String training_file_name = dataFile.getTrainingFile();
+            String test_file_name = dataFile.getTestFile();
+
+            System.out
+                    .println("Running for Training File: " + training_file_name + " Test File: " + test_file_name);
+
+            for(Config config: emptyIfNull(configs)) {
+
+                testFileIn = getClass().getResourceAsStream("/" + test_file_name);
+                trainingFileIn = getClass().getResourceAsStream("/" + training_file_name);
+
+                BufferedReader trainingReader = new BufferedReader(new InputStreamReader(
+                        trainingFileIn));
+
+
+                BufferedReader testReader = new BufferedReader(
+                        new InputStreamReader(testFileIn));
+
+                Instances train = new Instances(trainingReader);
+                Instances test = new Instances(testReader);
+                train.setClassIndex(train.numAttributes() - 1);
+                test.setClassIndex(test.numAttributes() - 1);
+                trainingReader.close();
+                testReader.close();
+
+                Double gamma = null;
+                Double cost = null;
+                Double exp = null;
+                String library = null;
+                String function_type = null;
+
+                for (Label label : emptyIfNull(config.getLabels())) {
+                    if (Constant.GAMMA.equalsIgnoreCase(label.getName()))
+                        gamma = (Double) label.getValue();
+                    if (Constant.COST.equalsIgnoreCase(label.getName()))
+                        cost = (Double) label.getValue();
+                    if (Constant.SVM_LIBRARY.equalsIgnoreCase(label.getName()))
+                        library = String.valueOf(label.getValue());
+                    if(Constant.EXP.equalsIgnoreCase(label.getName()))
+                        exp = (Double) label.getValue();
+                    if(Constant.FUNCTION_TYPE.equalsIgnoreCase(label.getName()))
+                        function_type = (String) label.getName();
+                }
+
+                List<Axis> perf_points = new ArrayList<Axis>();
+                List<Axis> error_points = new ArrayList<Axis>();
+
+                Integer percent = 5;
+
+                for(int indx = 0; indx < 20; indx++) {
+                    int splitTrainSize = (int) Math.round(train.numInstances()
+                                                          * percent / 100);
+                    Instances splitTrain = new Instances(train, 0, splitTrainSize);
+                    splitTrain.setClassIndex(splitTrain.numAttributes() - 1);
+
+                    if (library != null && Constant.LIBSVM.equalsIgnoreCase(library)) {
+
+                        LibSVM svm = new LibSVM();
+
+                        if(Constant.RBF.equalsIgnoreCase(function_type))
+                            svm.setKernelType(new SelectedTag(LibSVM.KERNELTYPE_RBF, LibSVM.TAGS_KERNELTYPE));
+                        else
+                            svm.setKernelType(new SelectedTag(LibSVM.KERNELTYPE_POLYNOMIAL, LibSVM.TAGS_KERNELTYPE));
+
+                        svm.setCost(cost);
+                        svm.setGamma(gamma);
+                        svm.buildClassifier(splitTrain);
+
+                        Evaluation splitTrainEval = new Evaluation(splitTrain);
+                        Evaluation testEval = new Evaluation(test);
+
+                        if (splitTrain.numInstances() > 10) {
+                            splitTrainEval.crossValidateModel(svm,
+                                    splitTrain, 10, new Random(1));
+                        } else {
+                            splitTrainEval.evaluateModel(svm, splitTrain);
+                        }
+                        testEval.evaluateModel(svm, test);
+
+                        Double testPctCorrect = testEval.pctCorrect();
+                        Double splitTrainPctCorrect = splitTrainEval.pctCorrect();
+
+                        Double testErrorRate = testEval.errorRate();
+                        Double splitTrainErrorRate = splitTrainEval.errorRate();
+
+                        // add graph points here
+                        Axis perf_point = new Axis();
+                        Axis error_point = new Axis();
+
+                        perf_point.setX(new Double(splitTrainSize));
+                        perf_point.setY1(testPctCorrect);
+                        perf_point.setY2(splitTrainPctCorrect);
+
+                        error_point.setX(new Double(splitTrainSize));
+                        error_point.setY1(testErrorRate);
+                        error_point.setY2(splitTrainErrorRate);
+
+                        perf_points.add(perf_point);
+                        error_points.add(error_point);
+
+                        System.out.println("\n Current Iteration is i:" + indx + "\n");
+                        System.out.println(splitTrainEval.toSummaryString(
+                                "\n Train Results\n======\n", false));
+                        System.out.println(testEval.toSummaryString(
+                                "\nTest Results\n======\n", false));
+
+
+                    } else if (library != null && Constant.SMO.equalsIgnoreCase(library)) {
+                        //smo library
+
+                        SMO smoSVM = new SMO();
+
+                        if(Constant.RBF.equalsIgnoreCase(function_type)) {
+                            RBFKernel rbfKernel = new RBFKernel();
+                            rbfKernel.setGamma(gamma);
+                            smoSVM.setKernel(rbfKernel);
+                        } else if(Constant.POLY_KERNEL.equalsIgnoreCase(function_type)) {
+                            PolyKernel polyKernel = new PolyKernel();
+                            polyKernel.setExponent(exp);
+                            polyKernel.setUseLowerOrder(true);
+                            smoSVM.setKernel(polyKernel);
+                        }
+                        smoSVM.setC(cost);
+                        smoSVM.buildClassifier(splitTrain);
+
+                        Evaluation splitTrainEval = new Evaluation(splitTrain);
+                        Evaluation testEval = new Evaluation(test);
+
+                        if (splitTrain.numInstances() > 10) {
+                            splitTrainEval.crossValidateModel(smoSVM,
+                                    splitTrain, 10, new Random(1));
+                        } else {
+                            splitTrainEval.evaluateModel(smoSVM, splitTrain);
+                        }
+                        testEval.evaluateModel(smoSVM, test);
+
+                        Double testPctCorrect = testEval.pctCorrect();
+                        Double splitTrainPctCorrect = splitTrainEval.pctCorrect();
+
+                        Double testErrorRate = testEval.errorRate();
+                        Double splitTrainErrorRate = splitTrainEval.errorRate();
+
+                        // add graph points here
+                        Axis perf_point = new Axis();
+                        Axis error_point = new Axis();
+
+                        perf_point.setX(new Double(splitTrainSize));
+                        perf_point.setY1(testPctCorrect);
+                        perf_point.setY2(splitTrainPctCorrect);
+
+                        error_point.setX(new Double(splitTrainSize));
+                        error_point.setY1(testErrorRate);
+                        error_point.setY2(splitTrainErrorRate);
+
+                        perf_points.add(perf_point);
+                        error_points.add(error_point);
+
+                        System.out.println("\n Current Iteration is i:" + indx + "\n");
+                        System.out.println(splitTrainEval.toSummaryString(
+                                "\n Train Results\n======\n", false));
+                        System.out.println(testEval.toSummaryString(
+                                "\nTest Results\n======\n", false));
+
+                    } else {
+                        System.out.println("Some configs are skipping");
+                    }
+                    percent += 5;
+                }
+
+                Graph perfGraph = new Graph();
+                Graph errorGraph = new Graph();
+
+                perfGraph.setAxisList(perf_points);
+                perfGraph.setXAxis(PERF_GRAPH_X_AXIS);
+                perfGraph.setY1Axis(PERF_GRAPH_Y1_AXIS);
+                perfGraph.setY2Axis(PERF_GRAPH_Y2_AXIS);
+
+                errorGraph.setAxisList(error_points);
+                errorGraph.setXAxis(ERROR_GRAPH_X_AXIS);
+                errorGraph.setY1Axis(ERROR_GRAPH_Y1_AXIS);
+                errorGraph.setY2Axis(ERROR_GRAPH_Y2_AXIS);
+
+                String[] data_file_prefix_arr = training_file_name.split("_");
+                String data_file_prefix = data_file_prefix_arr[0];
+                String FS = "_";
+
+                StringBuilder sb = new StringBuilder().append(output_dir).append("/").append(PERF_GRAPH).append(FS)
+                                                      .append(data_file_prefix).append(FS).append(cost)
+                                                      .append(FS).append(function_type).append(FS).append(library).append(FILE_FORMAT);
+                String perf_file_name = sb.toString();
+
+                sb = new StringBuilder().append(output_dir).append("/").append(ERR_GRAPH).append(FS)
+                                                      .append(data_file_prefix).append(FS).append(cost)
+                                                      .append(FS).append(function_type).append(FS).append(library).append(FILE_FORMAT);
+                String error_file_name = sb.toString();
+
+                FileUtil.createPlotFile(perfGraph, perf_file_name);
+                FileUtil.createPlotFile(errorGraph, error_file_name);
+
+                if(trainingFileIn != null)
+                    trainingFileIn.close();
+
+                if(testFileIn != null)
+                    testFileIn.close();
+            }
+        }
 
         return;
     }

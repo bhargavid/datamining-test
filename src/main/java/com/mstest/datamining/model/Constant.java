@@ -17,6 +17,10 @@ public class Constant {
     public static final String GAMMA = "gamma";
     public static final String EXP = "exp";
     public static final String FUNCTION_TYPE = "function_type";
-    public static final String POLYNOMIAL = "polynomial";
+    public static final String POLY_KERNEL = "PolyKernel";
     public static final String RBF = "rbf";
+    public static final String POLYNOMIAL = "polynomial";
+    public static final String LIBSVM = "libsvm";
+    public static final String SMO = "smo";
+    public static final String SVM_LIBRARY="svm_library";
 }

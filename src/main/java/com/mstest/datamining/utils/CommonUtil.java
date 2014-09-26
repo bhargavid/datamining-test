@@ -257,7 +257,7 @@ public class CommonUtil {
 
                     dataConfig.setDataFile(dataFile);
 
-                    List<Object> propList = prop.getList("svm.bank.c.var.functiontype");
+                    List<Object> propList = prop.getList("svm.bank.c.var.functiontype.library");
 
                     //expected format c:var:functiontype
                     for(Object property: propList) {
@@ -272,7 +272,7 @@ public class CommonUtil {
 
                         label = new Label();
 
-                        if(Constant.POLYNOMIAL.equalsIgnoreCase(config_arr[2]))
+                        if(Constant.POLY_KERNEL.equalsIgnoreCase(config_arr[2]))
                             label.setName(Constant.EXP);
                         else
                             label.setName(Constant.GAMMA);
@@ -282,6 +282,11 @@ public class CommonUtil {
                         label = new Label();
                         label.setName(Constant.FUNCTION_TYPE);
                         label.setValue(config_arr[2]);
+                        labels.add(label);
+
+                        label = new Label();
+                        label.setName(Constant.SVM_LIBRARY);
+                        label.setValue(config_arr[3]);
                         labels.add(label);
 
                         Config tmpConfig = new Config();
@@ -298,7 +303,7 @@ public class CommonUtil {
 
                     dataConfig.setDataFile(dataFile);
 
-                    List<Object> propList = prop.getList("svm.letter.c.var.functiontype");
+                    List<Object> propList = prop.getList("svm.letter.c.var.functiontype.library");
 
                     //expected format c:var:functiontype
                     for(Object property: propList) {
@@ -313,16 +318,18 @@ public class CommonUtil {
 
                         label = new Label();
 
-                        if(Constant.POLYNOMIAL.equalsIgnoreCase(config_arr[2]))
-                            label.setName(Constant.EXP);
-                        else
-                            label.setName(Constant.GAMMA);
+                        label.setName(Constant.GAMMA);
                         label.setValue(Double.valueOf(config_arr[1]));
                         labels.add(label);
 
                         label = new Label();
                         label.setName(Constant.FUNCTION_TYPE);
                         label.setValue(config_arr[2]);
+                        labels.add(label);
+
+                        label = new Label();
+                        label.setName(Constant.SVM_LIBRARY);
+                        label.setValue(config_arr[3]);
                         labels.add(label);
 
                         Config tmpConfig = new Config();
