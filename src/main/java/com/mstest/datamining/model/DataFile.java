@@ -1,7 +1,7 @@
 package com.mstest.datamining.model;
 
 /**
- * Created by bloganathan on 9/21/14.
+ * Created by bdamodaran on 9/21/14.
  */
 public class DataFile {
     private String trainingFile;

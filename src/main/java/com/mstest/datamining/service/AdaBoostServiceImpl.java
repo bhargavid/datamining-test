@@ -17,7 +17,7 @@ import java.util.concurrent.Future;
 import static com.mstest.datamining.utils.CommonUtil.fillConfigs;
 
 /**
- * Created by bloganathan on 9/24/14.
+ * Created by bdamodaran on 9/24/14.
  */
 public class AdaBoostServiceImpl implements AdaBoostService {
     private static final String PERF_GRAPH_X_AXIS = "ITERATION";
@@ -48,9 +48,10 @@ public class AdaBoostServiceImpl implements AdaBoostService {
 
         // check if the output directory exists
         File theDir = new File(output_dir);
-        if (!theDir.exists()) {
-            System.out.println("creating output directory: " + output_dir);
-            theDir.mkdir();
+
+        if (!FileUtil.createDirs(theDir)) {
+            System.out.println("ERROR:: Failed to create output directory. " + output_dir);
+            return;
         }
 
         List<DataConfig> dataConfigs = new ArrayList<DataConfig>();
@@ -61,7 +62,9 @@ public class AdaBoostServiceImpl implements AdaBoostService {
             List<Axis> error_points = new ArrayList<Axis>();
 
             DataFile dataFile = dataConfig.getDataFile();
-            if (dataFile == null)
+            List<Config> configs = dataConfig.getConfigs();
+
+            if (dataFile == null || configs == null || configs.isEmpty())
                 continue;
 
             testFileIn = getClass().getResourceAsStream("/" + dataConfig.getDataFile().getTestFile());
@@ -84,7 +87,8 @@ public class AdaBoostServiceImpl implements AdaBoostService {
             Integer minNumObject = null;
             Float confidenceFactor = null;
 
-            for(Label label: dataConfig.getConfig().getLabels()) {
+            Config config = configs.get(0);
+            for(Label label: config.getLabels()) {
                 if(Constant.MIN_NUM_OBJECT.equalsIgnoreCase(label.getName()))
                     minNumObject = (Integer) label.getValue();
                 if(Constant.CONFIDENCE_FACTOR.equalsIgnoreCase(label.getName()))
@@ -152,15 +156,5 @@ public class AdaBoostServiceImpl implements AdaBoostService {
             if(trainingFileIn != null)
                 trainingFileIn.close();
         }
-    }
-
-    private Axis getAxis(Double x, Double y1, Double y2) {
-        Axis axis = new Axis();
-
-        axis.setX(x);
-        axis.setY1(y1);
-        axis.setY2(y2);
-
-        return axis;
     }
 }

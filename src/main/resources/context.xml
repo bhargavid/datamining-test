@@ -29,4 +29,8 @@
     <beans:bean id="adaBoostService"
                 class="com.mstest.datamining.service.AdaBoostServiceImpl">
     </beans:bean>
+
+    <beans:bean id="svmService"
+                class="com.mstest.datamining.service.SvmServiceImpl">
+    </beans:bean>
 </beans:beans>

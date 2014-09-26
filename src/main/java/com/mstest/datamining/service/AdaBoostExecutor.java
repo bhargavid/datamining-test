@@ -11,7 +11,7 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 
 /**
- * Created by bloganathan on 9/25/14.
+ * Created by bdamodaran on 9/25/14.
  */
 public class AdaBoostExecutor implements Callable<Plot> {
     private Integer minNumObj;

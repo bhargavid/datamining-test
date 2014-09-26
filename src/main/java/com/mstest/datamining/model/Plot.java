@@ -1,7 +1,7 @@
 package com.mstest.datamining.model;
 
 /**
- * Created by bloganathan on 9/24/14.
+ * Created by bdamodaran on 9/24/14.
  */
 public class Plot {
     private Axis perfPoint;

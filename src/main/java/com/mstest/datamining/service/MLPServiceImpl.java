@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
- * Created by bloganathan on 9/22/14.
+ * Created by bdamodaran on 9/22/14.
  */
 public class MLPServiceImpl implements MLPService {
     private static final String PERF_GRAPH_X_AXIS = "TRAINING_TIME";
@@ -32,16 +32,12 @@ public class MLPServiceImpl implements MLPService {
 
     private static final String FILE_FORMAT = ".dat";
 
-    private static final String TMP_FILE_PATH = "/tmp/datamining-test/mlp";
+    private static final String TMP_FILE_PATH = "/tmp/datamining-test/multilayerperceptron";
 
     @Override
     public void run(Map<String, Object> params_map) throws Exception {
-        if(params_map.containsKey(AppCommandOptions.CONFIGURE)) {
-            configure(params_map);
-        } else {
-            System.out.println("Executing job mlp");
-            execute(params_map);
-        }
+        System.out.println("Executing job mlp");
+        execute(params_map);
     }
 
     private void execute(Map<String, Object> params_map) throws Exception {
@@ -49,19 +45,33 @@ public class MLPServiceImpl implements MLPService {
         if (output_dir == null)
             output_dir = TMP_FILE_PATH;
 
+        // check if the output directory exists
+        File theDir = new File(output_dir);
+
+        if (!FileUtil.createDirs(theDir)) {
+            System.out.println("ERROR:: Failed to create output directory. " + output_dir);
+            return;
+        }
+
         List<DataConfig> dataConfigs = new ArrayList<DataConfig>();
         fillConfigs(dataConfigs, Algorithm.multilayerperceptron);
 
         InputStream testFileIn = null;
         InputStream trainingFileIn = null;
 
-        for(DataConfig dataConfig: emptyIfNull(dataConfigs)) {
+        for (DataConfig dataConfig : emptyIfNull(dataConfigs)) {
+            DataFile dataFile = dataConfig.getDataFile();
+            List<Config> configs = dataConfig.getConfigs();
+
+            if (dataFile == null || configs == null || configs.isEmpty())
+                continue;
+
             List<Axis> perf_points = new ArrayList<Axis>();
             List<Axis> error_points = new ArrayList<Axis>();
 
 
-            testFileIn = getClass().getResourceAsStream("/" + dataConfig.getDataFile().getTestFile());
-            trainingFileIn = getClass().getResourceAsStream("/" + dataConfig.getDataFile().getTrainingFile());
+            testFileIn = getClass().getResourceAsStream("/" + dataFile.getTestFile());
+            trainingFileIn = getClass().getResourceAsStream("/" + dataFile.getTrainingFile());
 
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -84,31 +94,33 @@ public class MLPServiceImpl implements MLPService {
             Double momentum = null;
             Double learningRate = null;
 
-            for(Label label: dataConfig.getConfig().getLabels()) {
-                if(Constant.HIDDENLAYER.equalsIgnoreCase(label.getName()))
+            Config config = configs.get(0);
+
+            for (Label label : config.getLabels()) {
+                if (Constant.HIDDENLAYER.equalsIgnoreCase(label.getName()))
                     meanHiddenLayerStr = (String) label.getValue();
-                if(Constant.MOMENTUM.equalsIgnoreCase(label.getName()))
+                if (Constant.MOMENTUM.equalsIgnoreCase(label.getName()))
                     momentum = (Double) label.getValue();
-                if(Constant.LEARNING_RATE.equalsIgnoreCase(label.getName()))
+                if (Constant.LEARNING_RATE.equalsIgnoreCase(label.getName()))
                     learningRate = (Double) label.getValue();
             }
 
             ExecutorService pool = Executors.newFixedThreadPool(10);
             Collection<MLPExecutor> collection = new ArrayList<MLPExecutor>();
 
-            for(int i = 0; i <= 20; i++) {
+            for (int i = 0; i <= 20; i++) {
                 MLPExecutor mlpExecutor = new MLPExecutor(meanHiddenLayerStr, momentum, learningRate, trainingtime, train, test);
                 collection.add(mlpExecutor);
 
                 trainingtime += trainingtime_increments;
             }
 
-            List< Future<Plot> > futures = pool.invokeAll(collection);
+            List<Future<Plot>> futures = pool.invokeAll(collection);
 
-            for(Future<Plot> future: futures) {
+            for (Future<Plot> future : futures) {
                 Plot plot = future.get();
 
-                if(plot != null) {
+                if (plot != null) {
                     perf_points.add(plot.getPerfPoint());
                     error_points.add(plot.getErrorPoint());
                 } else {
@@ -138,27 +150,23 @@ public class MLPServiceImpl implements MLPService {
             String FS = "_";
 
             StringBuilder sb = new StringBuilder().append(output_dir).append("/").append(PERF_GRAPH).append(FS)
-                                                  .append(data_file_prefix).append(FILE_FORMAT);
+                    .append(data_file_prefix).append(FILE_FORMAT);
             String perf_file_name = sb.toString();
 
             sb = new StringBuilder().append(output_dir).append("/").append(ERR_GRAPH).append(FS)
-                                                  .append(data_file_prefix).append(FILE_FORMAT);
+                    .append(data_file_prefix).append(FILE_FORMAT);
             String error_file_name = sb.toString();
 
             FileUtil.createPlotFile(perfGraph, perf_file_name);
             FileUtil.createPlotFile(errorGraph, error_file_name);
 
-            if(testFileIn != null)
+            if (testFileIn != null)
                 testFileIn.close();
 
-            if(trainingFileIn != null)
+            if (trainingFileIn != null)
                 trainingFileIn.close();
         }
 
         return;
-    }
-
-    private void configure(Map<String, Object> params_map) {
-        //TODO implement this
     }
 }

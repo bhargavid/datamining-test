@@ -72,4 +72,15 @@ public class FileUtil {
         bw.write(sb.toString());
         bw.close();
     }
+
+    public static boolean createDirs(File dirPath) {
+        if(dirPath == null)
+            return false;
+
+        //if directory already exists then don't create
+        if(dirPath.exists())
+            return true;
+
+        return dirPath.mkdirs();
+    }
 }

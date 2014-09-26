@@ -5,7 +5,6 @@ import com.mstest.datamining.model.*;
 import com.mstest.datamining.utils.FileUtil;
 import weka.classifiers.Evaluation;
 import weka.classifiers.lazy.IBk;
-import weka.classifiers.trees.J48;
 import weka.core.EuclideanDistance;
 import weka.core.Instances;
 import weka.core.ManhattanDistance;
@@ -21,7 +20,7 @@ import static com.mstest.datamining.utils.CommonUtil.emptyIfNull;
 import static com.mstest.datamining.utils.CommonUtil.fillConfigs;
 
 /**
- * Created by bloganathan on 9/23/14.
+ * Created by bdamodaran on 9/23/14.
  */
 public class KnnServiceImpl implements KnnService {
     private static final String PERF_GRAPH_X_AXIS_1 = "TRAINING_SIZE";
@@ -61,9 +60,10 @@ public class KnnServiceImpl implements KnnService {
 
         // check if the output directory exists
         File theDir = new File(output_dir);
-        if (!theDir.exists()) {
-            System.out.println("creating output directory: " + output_dir);
-            theDir.mkdir();
+
+        if (!FileUtil.createDirs(theDir)) {
+            System.out.println("ERROR:: Failed to create output directory. " + output_dir);
+            return;
         }
 
         List<DataConfig> dataConfigs = new ArrayList<DataConfig>();
@@ -71,7 +71,9 @@ public class KnnServiceImpl implements KnnService {
 
         for(DataConfig dataConfig: emptyIfNull(dataConfigs)) {
             DataFile dataFile = dataConfig.getDataFile();
-            if (dataFile == null)
+            List<Config> configs = dataConfig.getConfigs();
+
+            if (dataFile == null || configs == null || configs.isEmpty())
                 continue;
 
             String training_file_name = dataFile.getTrainingFile();
@@ -111,7 +113,9 @@ public class KnnServiceImpl implements KnnService {
                 //TODO check if config exists
                 Integer k = null;
                 String distance_str = null;
-                for(Label label: dataConfig.getConfig().getLabels()) {
+
+                Config config = configs.get(0);
+                for(Label label: config.getLabels()) {
                     if(Constant.K.equals(label.getName()))
                         k = (Integer) label.getValue();
                     if(Constant.DISTANCE.equals(label.getName()))

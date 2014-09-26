@@ -1,13 +1,14 @@
 package com.mstest.datamining.model;
 
 /**
- * Created by bloganathan on 9/22/14.
+ * Created by bdamodaran on 9/22/14.
  */
 public enum Algorithm {
-    decistiontree("decisiontree"),
+    j48("j48"),
     multilayerperceptron("multilayerperceptron"),
     knn("knn"),
-    adaboost("adaboost");
+    adaboost("adaboost"),
+    svm("svm");
 
     private String name;
 

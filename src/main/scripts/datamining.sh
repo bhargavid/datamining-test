@@ -1,15 +1,30 @@
 #!/bin/sh
-app=datamining-test
+app=datamining_test
 app_home=$HOME/$app
 
-while getopts "dmko:a" flag
+if [[ ! -d "$app_home" ]]
+then
+    echo "Make sure to create directory structure like this <Your home dir>/datamining_test and copy all the contents of tar file\n"
+    exit -1
+fi
+
+jar=$app_home/datamining-test.dependencies.jar
+
+if [[ ! -s "$jar" ]]
+then
+    echo "Important jar missing $jar. Check & re-run the program\n"
+    exit -1
+fi
+
+while getopts "jmkso:a" flag
 do
     case "$flag" in
         o) output_dir=$OPTARG;;
-        d) decision_tree=1;;
+        j) j48=1;;
         m) mlp=1;;
         k) knn=1;;
         a) adaboost=1;;
+        s) svm=1;;
         *) echo "Invalid arg";;
     esac
 done
@@ -18,28 +33,43 @@ if [ "$output_dir" != "" ]; then
     OUTPUT_DIR="--output_dir $output_dir"
 fi
 
-if [[ ! -z $decision_tree ]]
+if [[ ! -z "$j48" ]]
 then
-    ALGORITHM="--decisiontree"
+    ALGORITHM="--j48"
 fi
 
-if [[ ! -z $mlp ]]
+if [[ ! -z "$mlp" ]]
 then
     ALGORITHM="--multilayerperceptron"
 fi
 
-if [[ ! -z $knn ]]
+if [[ ! -z "$knn" ]]
 then
     ALGORITHM="--knn"
 fi
 
-if [[ ! -z $adaboost ]]
+if [[ ! -z "$adaboost" ]]
 then
     ALGORITHM="--adaboost"
 fi
 
+if [[ ! -z "$svm" ]]
+then
+    ALGORITHM="--svm"
+fi
 
-jar=$app_home/datamining-test.dependencies.jar
+if [[ -z "$ALGORITHM" ]]
+then
+    echo "\nUsage: sh datamining.sh -<j|m|k|a|s> -o <full_path>"
+    echo "\t\t -<j|m|k|a|s> -> specifies the classification type"
+    echo "\t\t\t j - j48"
+    echo "\t\t\t m - multilayerperceptron"
+    echo "\t\t\t k - knn"
+    echo "\t\t\t a - adaboost"
+    echo "\t\t\t s - svm"
+    echo "\t\t -o output_dir will default to /tmp/datamining-test/<algorithm>\n"
+    exit
+fi
 
 export CLASSPATH=$CLASSPATH:$app_home:$app_home/*:$jar
 

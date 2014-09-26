@@ -3,7 +3,7 @@ package com.mstest.datamining.service;
 import java.util.Map;
 
 /**
- * Created by bloganathan on 9/20/14.
+ * Created by bdamodaran on 9/20/14.
  */
 public interface DecisionTreeService {
 

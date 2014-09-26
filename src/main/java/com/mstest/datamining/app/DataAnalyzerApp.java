@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by bloganathan on 9/20/14.
+ * Created by bdamodaran on 9/20/14.
  */
 public class DataAnalyzerApp {
 
@@ -28,12 +28,13 @@ public class DataAnalyzerApp {
         Map<String, Object> params_map = new HashMap<String, Object>();
         Options options = new Options();
 
-        options.addOption(AppCommandOptions.DECISION_TREE, false, "decision trees with pruning");
+        options.addOption(AppCommandOptions.J48, false, Algorithm.j48.getName());
         options.addOption(AppCommandOptions.OUTPUT_DIR, true, "output directory");
         options.addOption(AppCommandOptions.CONFIGURE, true, "configure algorithms");
-        options.addOption(AppCommandOptions.MULTILAYER_PERCEPTRON, false, "multi layer perceptron");
+        options.addOption(AppCommandOptions.MULTILAYER_PERCEPTRON, false, Algorithm.multilayerperceptron.getName());
         options.addOption(AppCommandOptions.KNN, false, Algorithm.knn.getName());
         options.addOption(AppCommandOptions.ADABOOST, false, Algorithm.adaboost.getName());
+        options.addOption(AppCommandOptions.SVM, false, Algorithm.svm.getName());
 
         try {
 
@@ -41,9 +42,9 @@ public class DataAnalyzerApp {
             CommandLine cmd = parser.parse(options, argv);
 
             //For now we are supporting only one job
-            if (cmd.hasOption(AppCommandOptions.DECISION_TREE)) {
-                System.out.println("Job added "+Algorithm.decistiontree.getName());
-                jobList.add(Algorithm.decistiontree);
+            if (cmd.hasOption(AppCommandOptions.J48)) {
+                System.out.println("Job added "+Algorithm.j48.getName());
+                jobList.add(Algorithm.j48);
             }
 
             if (cmd.hasOption(AppCommandOptions.MULTILAYER_PERCEPTRON)) {
@@ -61,31 +62,15 @@ public class DataAnalyzerApp {
                 jobList.add(Algorithm.adaboost);
             }
 
+            if (cmd.hasOption(AppCommandOptions.SVM)) {
+                System.out.println("Job added "+Algorithm.svm.getName());
+                jobList.add(Algorithm.svm);
+            }
+
             String output_dir = cmd.getOptionValue(AppCommandOptions.OUTPUT_DIR);
             if(output_dir != null) {
                 params_map.put(AppCommandOptions.OUTPUT_DIR, output_dir);
             }
-
-/*            if(cmd.hasOption(AppCommandOptions.CONFIGURE)) {
-                String commands_str = cmd.getOptionValue(AppCommandOptions.CONFIGURE);
-
-                if(commands_str != null) {
-                    //expecting a comma separated value
-                    String[] commands = commands_str.split(",");
-                    for(String command: commands) {
-                        for(Algorithm algorithm: Algorithm.values()) {
-                            if(command.equals(algorithm.getName())) {
-                                jobList.add(algorithm);
-                            }
-                        }
-                    }
-                    params_map.put(AppCommandOptions.CONFIGURE, null);
-                } else {
-                    for(Algorithm algorithm: Algorithm.values()) {
-                        jobList.add(algorithm);
-                    }
-                }
-            }*/
 
             ApplicationContext context = new ClassPathXmlApplicationContext(CONFIG);
             JobDriver driver = (JobDriver) context.getBean(BEAN_NAME);

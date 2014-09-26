@@ -27,22 +27,11 @@ public class CommonUtil {
             Configuration prop = new PropertiesConfiguration(PROPERTIES);
 
             switch (algorithm) {
-                case decistiontree:
-                    dataConfigs.add(getDataConfig(algorithm, prop, BANK));
-                    dataConfigs.add(getDataConfig(algorithm, prop, LETTER));
-                    break;
-
+                case j48:
                 case multilayerperceptron:
-                    dataConfigs.add(getDataConfig(algorithm, prop, BANK));
-                    dataConfigs.add(getDataConfig(algorithm, prop, LETTER));
-                    break;
-
                 case knn:
-                    dataConfigs.add(getDataConfig(algorithm, prop, BANK));
-                    dataConfigs.add(getDataConfig(algorithm, prop, LETTER));
-                    break;
-
                 case adaboost:
+                case svm:
                     dataConfigs.add(getDataConfig(algorithm, prop, BANK));
                     dataConfigs.add(getDataConfig(algorithm, prop, LETTER));
                     break;
@@ -61,10 +50,11 @@ public class CommonUtil {
         DataConfig dataConfig = new DataConfig();
         DataFile dataFile = new DataFile();
         List<Label> labels = new ArrayList<Label>();
+        List<Config> configs = new ArrayList<Config>();
         Config config = new Config();
 
         switch (algorithm) {
-            case decistiontree:
+            case j48:
 
                 if (BANK.equalsIgnoreCase(dataSet)) {
 
@@ -88,7 +78,8 @@ public class CommonUtil {
 
                     config.setLabels(labels);
 
-                    dataConfig.setConfig(config);
+                    configs.add(config);
+                    dataConfig.setConfigs(configs);
 
                 } else if (LETTER.equalsIgnoreCase(dataSet)) {
                     dataFile.setTrainingFile(prop.getString("dt.letter.training.file"));
@@ -111,7 +102,8 @@ public class CommonUtil {
 
                     config.setLabels(labels);
 
-                    dataConfig.setConfig(config);
+                    configs.add(config);
+                    dataConfig.setConfigs(configs);
                 }
 
                 break;
@@ -160,7 +152,8 @@ public class CommonUtil {
                 }
 
                 config.setLabels(labels);
-                dataConfig.setConfig(config);
+                configs.add(config);
+                dataConfig.setConfigs(configs);
 
                 break;
 
@@ -200,7 +193,8 @@ public class CommonUtil {
                 }
 
                 config.setLabels(labels);
-                dataConfig.setConfig(config);
+                configs.add(config);
+                dataConfig.setConfigs(configs);
 
                 break;
 
@@ -227,7 +221,8 @@ public class CommonUtil {
 
                     config.setLabels(labels);
 
-                    dataConfig.setConfig(config);
+                    configs.add(config);
+                    dataConfig.setConfigs(configs);
 
                 } else if (LETTER.equalsIgnoreCase(dataSet)) {
                     dataFile.setTrainingFile(prop.getString("adaboost.letter.training.file"));
@@ -250,8 +245,95 @@ public class CommonUtil {
 
                     config.setLabels(labels);
 
-                    dataConfig.setConfig(config);
+                    configs.add(config);
+                    dataConfig.setConfigs(configs);
                 }
+                break;
+
+            case svm:
+                if(BANK.equalsIgnoreCase(dataSet)) {
+                    dataFile.setTrainingFile(prop.getString("svm.bank.training.file"));
+                    dataFile.setTestFile(prop.getString("svm.bank.test.file"));
+
+                    dataConfig.setDataFile(dataFile);
+
+                    List<Object> propList = prop.getList("svm.bank.c.var.functiontype");
+
+                    //expected format c:var:functiontype
+                    for(Object property: propList) {
+                        String property_str = (String) property;
+                        String[] config_arr = property_str.split(":");
+
+                        //if function type is polynomial then 2nd variable is treated as exp otherwise gamma
+                        Label label = new Label();
+                        label.setName(Constant.COST);
+                        label.setValue(Double.valueOf(config_arr[0]));
+                        labels.add(label);
+
+                        label = new Label();
+
+                        if(Constant.POLYNOMIAL.equalsIgnoreCase(config_arr[2]))
+                            label.setName(Constant.EXP);
+                        else
+                            label.setName(Constant.GAMMA);
+                        label.setValue(Double.valueOf(config_arr[1]));
+                        labels.add(label);
+
+                        label = new Label();
+                        label.setName(Constant.FUNCTION_TYPE);
+                        label.setValue(config_arr[2]);
+                        labels.add(label);
+
+                        Config tmpConfig = new Config();
+                        tmpConfig.setLabels(labels);
+
+                        configs.add(tmpConfig);
+                    }
+
+                    dataConfig.setConfigs(configs);
+
+                } else if(LETTER.equalsIgnoreCase(dataSet)) {
+                    dataFile.setTrainingFile(prop.getString("svm.letter.training.file"));
+                    dataFile.setTestFile(prop.getString("svm.letter.test.file"));
+
+                    dataConfig.setDataFile(dataFile);
+
+                    List<Object> propList = prop.getList("svm.letter.c.var.functiontype");
+
+                    //expected format c:var:functiontype
+                    for(Object property: propList) {
+                        String property_str = (String) property;
+                        String[] config_arr = property_str.split(":");
+
+                        //if function type is polynomial then 2nd variable is treated as exp otherwise gamma
+                        Label label = new Label();
+                        label.setName(Constant.COST);
+                        label.setValue(Double.valueOf(config_arr[0]));
+                        labels.add(label);
+
+                        label = new Label();
+
+                        if(Constant.POLYNOMIAL.equalsIgnoreCase(config_arr[2]))
+                            label.setName(Constant.EXP);
+                        else
+                            label.setName(Constant.GAMMA);
+                        label.setValue(Double.valueOf(config_arr[1]));
+                        labels.add(label);
+
+                        label = new Label();
+                        label.setName(Constant.FUNCTION_TYPE);
+                        label.setValue(config_arr[2]);
+                        labels.add(label);
+
+                        Config tmpConfig = new Config();
+                        tmpConfig.setLabels(labels);
+
+                        configs.add(tmpConfig);
+                    }
+
+                    dataConfig.setConfigs(configs);
+                }
+
                 break;
 
             default:
