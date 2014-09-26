@@ -77,4 +77,6 @@ command_str="cd $app_home && time java ${JVM_ARGS} -classpath $CLASSPATH com.mst
 
 echo "$command_str"
 
-cd $app_home && time java ${JVM_ARGS} -classpath $CLASSPATH com.mstest.datamining.app.DataAnalyzerApp ${ALGORITHM} ${OUTPUT_DIR} > ./log_file 2>&1
+jvm_args="-Xms512m -Xmx2048m"
+
+cd $app_home && time java $jvm_args -classpath $CLASSPATH com.mstest.datamining.app.DataAnalyzerApp ${ALGORITHM} ${OUTPUT_DIR} > ./log_file 2>&1

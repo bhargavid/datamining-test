@@ -261,6 +261,8 @@ public class CommonUtil {
 
                     //expected format c:var:functiontype
                     for(Object property: propList) {
+
+                        List<Label> labels1 = new ArrayList<Label>();
                         String property_str = (String) property;
                         String[] config_arr = property_str.split(":");
 
@@ -268,7 +270,7 @@ public class CommonUtil {
                         Label label = new Label();
                         label.setName(Constant.COST);
                         label.setValue(Double.valueOf(config_arr[0]));
-                        labels.add(label);
+                        labels1.add(label);
 
                         label = new Label();
 
@@ -277,20 +279,20 @@ public class CommonUtil {
                         else
                             label.setName(Constant.GAMMA);
                         label.setValue(Double.valueOf(config_arr[1]));
-                        labels.add(label);
+                        labels1.add(label);
 
                         label = new Label();
                         label.setName(Constant.FUNCTION_TYPE);
                         label.setValue(config_arr[2]);
-                        labels.add(label);
+                        labels1.add(label);
 
                         label = new Label();
                         label.setName(Constant.SVM_LIBRARY);
                         label.setValue(config_arr[3]);
-                        labels.add(label);
+                        labels1.add(label);
 
                         Config tmpConfig = new Config();
-                        tmpConfig.setLabels(labels);
+                        tmpConfig.setLabels(labels1);
 
                         configs.add(tmpConfig);
                     }
@@ -307,6 +309,7 @@ public class CommonUtil {
 
                     //expected format c:var:functiontype
                     for(Object property: propList) {
+                        List<Label> labels1 = new ArrayList<Label>();
                         String property_str = (String) property;
                         String[] config_arr = property_str.split(":");
 
@@ -314,26 +317,26 @@ public class CommonUtil {
                         Label label = new Label();
                         label.setName(Constant.COST);
                         label.setValue(Double.valueOf(config_arr[0]));
-                        labels.add(label);
+                        labels1.add(label);
 
                         label = new Label();
 
                         label.setName(Constant.GAMMA);
                         label.setValue(Double.valueOf(config_arr[1]));
-                        labels.add(label);
+                        labels1.add(label);
 
                         label = new Label();
                         label.setName(Constant.FUNCTION_TYPE);
                         label.setValue(config_arr[2]);
-                        labels.add(label);
+                        labels1.add(label);
 
                         label = new Label();
                         label.setName(Constant.SVM_LIBRARY);
                         label.setValue(config_arr[3]);
-                        labels.add(label);
+                        labels1.add(label);
 
                         Config tmpConfig = new Config();
-                        tmpConfig.setLabels(labels);
+                        tmpConfig.setLabels(labels1);
 
                         configs.add(tmpConfig);
                     }
