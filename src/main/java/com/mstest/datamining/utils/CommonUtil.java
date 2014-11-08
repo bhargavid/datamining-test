@@ -32,7 +32,7 @@ public class CommonUtil {
                 case knn:
                 case adaboost:
                 case svm:
-                    dataConfigs.add(getDataConfig(algorithm, prop, BANK));
+                    //dataConfigs.add(getDataConfig(algorithm, prop, BANK));
                     dataConfigs.add(getDataConfig(algorithm, prop, LETTER));
                     break;
 

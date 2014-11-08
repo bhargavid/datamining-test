@@ -8,7 +8,8 @@ public enum Algorithm {
     multilayerperceptron("multilayerperceptron"),
     knn("knn"),
     adaboost("adaboost"),
-    svm("svm");
+    svm("svm"),
+    assn3("assn3");
 
     private String name;
 

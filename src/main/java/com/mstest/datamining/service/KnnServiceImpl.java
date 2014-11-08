@@ -39,7 +39,7 @@ public class KnnServiceImpl implements KnnService {
     private static final String TMP_FILE_PATH = "/tmp/datamining-test/knn";
     private static final String FILE_FORMAT = ".dat";
 
-    @Override
+
     public void run(Map<String, Object> params_map) throws Exception {
         execute(params_map);
     }

@@ -32,7 +32,7 @@ public class MLPExecutor implements Callable<Plot> {
         this.test = test;
     }
 
-    @Override
+
     public Plot call() throws Exception {
 
         System.out.println("Executing for hlayer: " + meanHiddenLayerStr + " momentum: " + momentum + " learningR: " +

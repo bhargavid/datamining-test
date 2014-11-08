@@ -1,3 +1,4 @@
+/*
 package com.mstest.datamining.service;
 
 import com.mstest.datamining.model.Axis;
@@ -14,9 +15,11 @@ import weka.core.SelectedTag;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
+*/
 /**
  * Created by bdamodaran on 9/26/14.
- */
+ *//*
+
 public class SvmExecutor implements Callable<Plot> {
     private Double gamma;
     private Double cost;
@@ -166,3 +169,4 @@ public class SvmExecutor implements Callable<Plot> {
         return plot;
     }
 }
+*/

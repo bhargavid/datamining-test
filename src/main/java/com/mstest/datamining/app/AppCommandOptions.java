@@ -13,4 +13,5 @@ public class AppCommandOptions {
     public static final String CONFIGURE = "configure";
     public static final String ADABOOST = Algorithm.adaboost.getName();
     public static final String SVM = Algorithm.svm.getName();
+    public static final String ASSN3 = Algorithm.assn3.getName();
 }

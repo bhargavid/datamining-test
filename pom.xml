@@ -6,12 +6,19 @@
     <version>1.0.0</version>
 
     <dependencies>
+
         <dependency>
+            <groupId>org.kewlb.datamining</groupId>
+            <artifactId>weka</artifactId>
+            <version>99.9</version>
+        </dependency>
+
+        <!--<dependency>
             <groupId>nz.ac.waikato.cms.weka</groupId>
             <artifactId>weka-stable</artifactId>
             <version>3.6.11</version>
         </dependency>
-
+-->
         <dependency>
             <groupId>tw.edu.ntu.csie</groupId>
             <artifactId>libsvm</artifactId>
@@ -40,6 +47,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>3.0.5.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.0.19</version>
         </dependency>
     </dependencies>
 

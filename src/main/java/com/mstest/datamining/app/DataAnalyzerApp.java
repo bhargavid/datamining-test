@@ -35,6 +35,7 @@ public class DataAnalyzerApp {
         options.addOption(AppCommandOptions.KNN, false, Algorithm.knn.getName());
         options.addOption(AppCommandOptions.ADABOOST, false, Algorithm.adaboost.getName());
         options.addOption(AppCommandOptions.SVM, false, Algorithm.svm.getName());
+        options.addOption(AppCommandOptions.ASSN3, false, Algorithm.assn3.getName());
 
         try {
 
@@ -65,6 +66,11 @@ public class DataAnalyzerApp {
             if (cmd.hasOption(AppCommandOptions.SVM)) {
                 System.out.println("Job added "+Algorithm.svm.getName());
                 jobList.add(Algorithm.svm);
+            }
+
+            if (cmd.hasOption(AppCommandOptions.ASSN3)) {
+                System.out.println("Job added "+Algorithm.assn3.getName());
+                jobList.add(Algorithm.assn3);
             }
 
             String output_dir = cmd.getOptionValue(AppCommandOptions.OUTPUT_DIR);

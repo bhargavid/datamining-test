@@ -28,9 +28,13 @@ public class JobDriver {
     @Qualifier("adaBoostService")
     AdaBoostService adaBoostService;
 
-    @Autowired
+    /*@Autowired
     @Qualifier("svmService")
     SvmService svmService;
+*/
+    @Autowired
+    @Qualifier("assn3Service")
+    Assignment3 assn3Service;
 
     public void processJob(List<Algorithm> algorithms, Map<String, Object> params_map) {
         try {
@@ -47,8 +51,11 @@ public class JobDriver {
                 if(Algorithm.adaboost.equals(algorithm))
                     adaBoostService.run(params_map);
 
-                if(Algorithm.svm.equals(algorithm))
-                    svmService.run(params_map);
+//                if(Algorithm.svm.equals(algorithm))
+//                    svmService.run(params_map);
+
+                if(Algorithm.assn3.equals(algorithm))
+                    assn3Service.execute();
             }
         } catch (Exception e) {
             //TODO handle exceptions properly

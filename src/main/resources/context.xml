@@ -30,7 +30,11 @@
                 class="com.mstest.datamining.service.AdaBoostServiceImpl">
     </beans:bean>
 
-    <beans:bean id="svmService"
-                class="com.mstest.datamining.service.SvmServiceImpl">
+    <!--<beans:bean id="svmService"-->
+                <!--class="com.mstest.datamining.service.SvmServiceImpl">-->
+    <!--</beans:bean>-->
+
+    <beans:bean id="assn3Service"
+                class="com.mstest.datamining.service.Assignment3Impl">
     </beans:bean>
 </beans:beans>

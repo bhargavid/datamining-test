@@ -16,7 +16,7 @@ then
     exit -1
 fi
 
-while getopts "jmkso:a" flag
+while getopts "jmkso:ac" flag
 do
     case "$flag" in
         o) output_dir=$OPTARG;;
@@ -25,6 +25,7 @@ do
         k) knn=1;;
         a) adaboost=1;;
         s) svm=1;;
+        c) assign3=1;;
         *) echo "Invalid arg";;
     esac
 done
@@ -58,6 +59,11 @@ then
     ALGORITHM="--svm"
 fi
 
+if [[ ! -z "$assign3" ]]
+then
+    ALGORITHM="--assn3"
+fi
+
 if [[ -z "$ALGORITHM" ]]
 then
     echo "\nUsage: sh datamining.sh -<j|m|k|a|s> -o <full_path>"
@@ -67,6 +73,7 @@ then
     echo "\t\t\t k - knn"
     echo "\t\t\t a - adaboost"
     echo "\t\t\t s - svm"
+    echo "\t\t\t c - clustering / assignment3"
     echo "\t\t -o output_dir will default to /tmp/datamining-test/<algorithm>\n"
     exit
 fi

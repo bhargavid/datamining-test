@@ -51,13 +51,14 @@ public class AdaBoostExecutor implements Callable<Plot> {
 
         Double testPctCorrect = testEval.pctCorrect();
         Double trainPctCorrect = trainEval.pctCorrect();
+        Double c = trainEval.pctCorrect();
 
         Double testErrorRate = testEval.errorRate();
         Double trainErrorRate = trainEval.errorRate();
 
         System.out.println("testPctCorrect" + testPctCorrect);
         System.out.println("trainPctCorrect"
-                           + trainEval);
+                           + trainPctCorrect);
         System.out.println("testErrorRate" + testErrorRate);
         System.out.println("trainErrorRate" + trainErrorRate);
 
