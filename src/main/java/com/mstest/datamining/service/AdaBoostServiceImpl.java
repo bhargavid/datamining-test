@@ -102,7 +102,7 @@ public class AdaBoostServiceImpl implements AdaBoostService {
             Collection<AdaBoostExecutor> tasks = new ArrayList<AdaBoostExecutor>();
 
             //TODO may be need to produce different instances of train & test every time?
-            for(int i = 0; i < 5; i++) {
+            for(int i = 0; i < 20; i++) {
                 System.out.println("\n Current Iteration is i:" + i);
                 AdaBoostExecutor task = new AdaBoostExecutor(minNumObject, confidenceFactor, iteration, train, test);
                 tasks.add(task);
