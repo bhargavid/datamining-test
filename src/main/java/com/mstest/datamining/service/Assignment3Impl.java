@@ -137,8 +137,8 @@ public class Assignment3Impl implements Assignment3 {
 
                     System.out.println("Threads completed for seeding");
 
-                    xySeriesCollection_letter_seed.addSeries(xySeries_letter_k);
-                    xySeriesCollection_letter_seed_pct.addSeries(xySeries_letter_k_pct);
+                    xySeriesCollection_letter_seed.addSeries(xySeries_letter_seed);
+                    xySeriesCollection_letter_seed_pct.addSeries(xySeries_letter_seed_pct);
 
                     chart(xySeriesCollection_letter_seed, "K_means_Clustering_Letter_dataset_Seed_Avg_Silhouette_Coeff", "Starting instance index", "Average Silhouette Coefficient", output_dir);
                     chart(xySeriesCollection_letter_seed_pct, "K_means_Clustering_Letter_dataset_Seed_Cluster_to_Class_Prediction_Correct_Pct", "Starting instance index", "Cluster to Class Prediction Correct Percent", output_dir);
