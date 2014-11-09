@@ -37,6 +37,7 @@ public class DataAnalyzerApp {
         options.addOption(AppCommandOptions.SVM, false, Algorithm.svm.getName());
         options.addOption(AppCommandOptions.ASSN3, false, Algorithm.assn3.getName());
         options.addOption(AppCommandOptions.SEED, false, Algorithm.seed.getName());
+        options.addOption(AppCommandOptions.EM, false, Algorithm.em.getName());
 
         try {
 
