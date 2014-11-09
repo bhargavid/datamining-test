@@ -2,7 +2,7 @@ package com.mstest.datamining.service;
 
 public class ClusterData {
     private int noOfCluster;
-    private double avgSilCoeff;
+    private double x;
     private double pctCorrect;
 
 
@@ -12,11 +12,11 @@ public class ClusterData {
     public void setNoOfCluster(int noOfCluster) {
         this.noOfCluster = noOfCluster;
     }
-    public double getAvgSilCoeff() {
-        return avgSilCoeff;
+    public double getX() {
+        return x;
     }
-    public void setAvgSilCoeff(double avgSilCoeff) {
-        this.avgSilCoeff = avgSilCoeff;
+    public void setX(double x) {
+        this.x = x;
     }
     public double getPctCorrect() {
         return pctCorrect;

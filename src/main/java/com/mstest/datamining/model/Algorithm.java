@@ -10,7 +10,8 @@ public enum Algorithm {
     adaboost("adaboost"),
     svm("svm"),
     assn3("assn3"),
-    seed("seed");
+    seed("seed"),
+    em("em");
 
     private String name;
 

@@ -107,12 +107,17 @@ public class SimpleClusterRunner implements Callable<ClusterData> {
         l_bw.write("\nCluster Eval Results:"+clusterEval.clusterResultsToString());
         l_bw.write("\n Correct:"+correctCnt+" Incorrect:"+incorrectCount);
         l_bw.write(Arrays.toString(clustClass));
+
+        l_bw.close();
+        l_fw.close();
+
         Double pctCorrect =  (((double)correctCnt / l_train.numInstances()) * 100);
 
         ClusterData data = new ClusterData();
         data.setNoOfCluster(seed);
-        data.setAvgSilCoeff(simplekmeans.getAvgSilCoeff());
+        data.setX(simplekmeans.getAvgSilCoeff());
         data.setPctCorrect(pctCorrect);
+
 
         return data;
     }

@@ -16,7 +16,7 @@ then
     exit -1
 fi
 
-while getopts "jmkso:acz" flag
+while getopts "jmkso:acze" flag
 do
     case "$flag" in
         o) output_dir=$OPTARG;;
@@ -27,6 +27,7 @@ do
         s) svm=1;;
         c) assign3=1;;
         z) seed=1;;
+        e) em=1;;
         *) echo "Invalid arg";;
     esac
 done
@@ -70,10 +71,15 @@ then
     ALGORITHM="--seed"
 fi
 
+if [[ ! -z "$em" ]]
+then
+    ALGORITHM="--em"
+fi
+
 if [[ -z "$ALGORITHM" ]]
 then
-    echo "\nUsage: sh datamining.sh -<j|m|k|a|s> -o <full_path>"
-    echo "\t\t -<j|m|k|a|s> -> specifies the classification type"
+    echo "\nUsage: sh datamining.sh -<j|m|k|a|s|c|z|e> -o <full_path>"
+    echo "\t\t -<j|m|k|a|s|c|z|e> -> specifies the classification type"
     echo "\t\t\t j - j48"
     echo "\t\t\t m - multilayerperceptron"
     echo "\t\t\t k - knn"
@@ -81,6 +87,7 @@ then
     echo "\t\t\t s - svm"
     echo "\t\t\t c - clustering / assignment3"
     echo "\t\t\t z - clustering / seed"
+    echo "\t\t\t e - clustering / em"
     echo "\t\t -o output_dir will default to /tmp/datamining-test/<algorithm>\n"
     exit
 fi
@@ -91,6 +98,6 @@ command_str="cd $app_home && time java ${JVM_ARGS} -classpath $CLASSPATH com.mst
 
 echo "$command_str"
 
-jvm_args="-Xms4096m -Xmx8192m"
+jvm_args="-Xms2048m -Xmx4096m"
 
 cd $app_home && time java $jvm_args -classpath $CLASSPATH com.mstest.datamining.app.DataAnalyzerApp ${ALGORITHM} ${OUTPUT_DIR} > ./log_file 2>&1

@@ -132,7 +132,7 @@ public class ClusterRunnerExecutor implements Callable<ClusterData> {
 
         ClusterData data = new ClusterData();
         data.setNoOfCluster(noOfCluster);
-        data.setAvgSilCoeff(simplekmeans.getAvgSilCoeff());
+        data.setX(simplekmeans.getAvgSilCoeff());
         data.setPctCorrect(pctCorrect);
 
         return data;

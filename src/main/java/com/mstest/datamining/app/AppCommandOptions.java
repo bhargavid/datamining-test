@@ -15,4 +15,5 @@ public class AppCommandOptions {
     public static final String SVM = Algorithm.svm.getName();
     public static final String ASSN3 = Algorithm.assn3.getName();
     public static final String SEED = Algorithm.seed.getName();
+    public static final String EM = Algorithm.em.getName();
 }

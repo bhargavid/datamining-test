@@ -79,6 +79,11 @@ public class DataAnalyzerApp {
                 jobList.add(Algorithm.seed);
             }
 
+            if (cmd.hasOption(AppCommandOptions.EM)) {
+                System.out.println("Job added "+Algorithm.em.getName());
+                jobList.add(Algorithm.em);
+            }
+
             String output_dir = cmd.getOptionValue(AppCommandOptions.OUTPUT_DIR);
             if(output_dir != null) {
                 params_map.put(AppCommandOptions.OUTPUT_DIR, output_dir);

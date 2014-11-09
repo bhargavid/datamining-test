@@ -59,6 +59,9 @@ public class JobDriver {
 
                 if(Algorithm.seed.equals(algorithm))
                     assn3Service.execute(2, "/tmp/clustering/seed");
+
+                if(Algorithm.seed.equals(algorithm))
+                    assn3Service.execute(3, "/tmp/clustering/em");
             }
         } catch (Exception e) {
             //TODO handle exceptions properly
