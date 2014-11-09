@@ -42,7 +42,7 @@ public class Assignment3Impl implements Assignment3 {
                     ExecutorService pool = Executors.newFixedThreadPool(10);
                     Collection<ClusterRunnerExecutor> collection = new ArrayList<ClusterRunnerExecutor>();
 
-                    for (int i = 2; i < 13; i++) {
+                    for (int i = 2; i < 10; i++) {
                         String training_file_name = "/letter_training_70pct_1.arff";
 
                         InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
@@ -161,7 +161,7 @@ public class Assignment3Impl implements Assignment3 {
                     ExecutorService pool = Executors.newFixedThreadPool(10);
                     Collection<EMClusterRunner> collection = new ArrayList<EMClusterRunner>();
 
-                    for (int i = 2; i < 13; i++) {
+                    for (int i = 2; i < 10; i++) {
                         String training_file_name = "/letter_training_70pct_1.arff";
 
                         InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);

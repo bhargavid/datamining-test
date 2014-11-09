@@ -37,4 +37,8 @@
     <beans:bean id="assn3Service"
                 class="com.mstest.datamining.service.Assignment3Impl">
     </beans:bean>
+
+    <beans:bean id="assn3ReducedService"
+                class="com.mstest.datamining.service.Assignment3ReducedImpl">
+    </beans:bean>
 </beans:beans>
