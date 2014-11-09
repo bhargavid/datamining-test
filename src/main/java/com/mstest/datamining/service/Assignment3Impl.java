@@ -20,8 +20,8 @@ import java.util.concurrent.Future;
 
 
 public class Assignment3Impl implements Assignment3 {
-    private static final String output_dir = "/tmp/clustering";
-    public void execute() throws Exception {
+
+    public void execute(int option, String output_dir) throws Exception {
         try {
 
             File theDir = new File(output_dir);
@@ -29,8 +29,6 @@ public class Assignment3Impl implements Assignment3 {
                 System.out.println("ERROR:: Failed to create output directory. " + output_dir);
                 return;
             }
-
-            StringBuilder sb = new StringBuilder();
 
             XYSeriesCollection xySeriesCollection_letter_k = new XYSeriesCollection();
             XYSeriesCollection xySeriesCollection_letter_seed = new XYSeriesCollection();
@@ -41,59 +39,119 @@ public class Assignment3Impl implements Assignment3 {
             XYSeries xySeries_letter_k_pct = new XYSeries("K means Clustering - Letter dataset - K variation vs Cluster to Class Percent Correct");
             XYSeries xySeries_letter_seed_pct = new XYSeries("K means Clustering - Letter dataset - Starting instance variation vs Cluster to Class Percent Correct");
 
-            ExecutorService pool = Executors.newFixedThreadPool(30);
-            Collection<ClusterRunnerExecutor> collection = new ArrayList<ClusterRunnerExecutor>();
+            switch (option) {
+                case 1: {
+                    System.out.println("Option 1");
+                    ExecutorService pool = Executors.newFixedThreadPool(10);
+                    Collection<ClusterRunnerExecutor> collection = new ArrayList<ClusterRunnerExecutor>();
 
-            for (int i = 2; i < 27; i++) {
-                String test_file_name = "/letter_training_70pct_1.arff";
+                    for (int i = 2; i < 10; i++) {
+                        String training_file_name = "/letter_training_70pct_1.arff";
 
-                InputStream testFileIn = getClass().getResourceAsStream(test_file_name);
+                        InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
 
-                BufferedReader l_training_reader = new BufferedReader(new InputStreamReader(
-                        testFileIn));
+                        BufferedReader l_training_buffer = new BufferedReader(new InputStreamReader(
+                                trainingFileStream));
 
-                Instances l_train = new Instances(l_training_reader);
-                l_train.setClassIndex(l_train.numAttributes() - 1);
+                        Instances l_train = new Instances(l_training_buffer);
+                        l_train.setClassIndex(l_train.numAttributes() - 1);
 
-                weka.filters.unsupervised.attribute.Remove l_filter = new weka.filters.unsupervised.attribute.Remove();
-                l_filter.setAttributeIndices("" + (l_train.classIndex() + 1));
-                l_filter.setInputFormat(l_train);
-                Instances l_trainDataClusterer = Filter.useFilter(l_train, l_filter);
+                        weka.filters.unsupervised.attribute.Remove l_filter = new weka.filters.unsupervised.attribute.Remove();
+                        l_filter.setAttributeIndices("" + (l_train.classIndex() + 1));
+                        l_filter.setInputFormat(l_train);
+                        Instances l_trainDataClusterer = Filter.useFilter(l_train, l_filter);
 
 
-                l_training_reader.close();
-                testFileIn.close();
+                        l_training_buffer.close();
+                        trainingFileStream.close();
 
-                ClusterRunnerExecutor executor = new ClusterRunnerExecutor(i, l_trainDataClusterer, l_train);
-                collection.add(executor);
-            }
+                        ClusterRunnerExecutor executor = new ClusterRunnerExecutor(i, l_trainDataClusterer, l_train, output_dir);
+                        collection.add(executor);
+                    }
 
-            List<Future<ClusterData>> futures = pool.invokeAll(collection);
-            for (Future<ClusterData> future : futures) {
-                ClusterData data = future.get();
-                if (data != null) {
-                    System.out.println("Got data for clusters: " + data.getNoOfCluster());
-                    xySeries_letter_k.add((double) data.getNoOfCluster(), data.getAvgSilCoeff());
-                    xySeries_letter_k_pct.add((double) data.getNoOfCluster(), data.getPctCorrect());
+                    List<Future<ClusterData>> futures = pool.invokeAll(collection);
+                    for (Future<ClusterData> future : futures) {
+                        ClusterData data = future.get();
+                        if (data != null) {
+                            System.out.println("Got data for clusters: " + data.getNoOfCluster());
+                            xySeries_letter_k.add((double) data.getNoOfCluster(), data.getAvgSilCoeff());
+                            xySeries_letter_k_pct.add((double) data.getNoOfCluster(), data.getPctCorrect());
+                        } else {
+                            System.out.println("Failed");
+                        }
+                    }
+                    pool.shutdown();
+
+                    System.out.println("Threads completed");
 
                     xySeriesCollection_letter_k.addSeries(xySeries_letter_k);
                     xySeriesCollection_letter_k_pct.addSeries(xySeries_letter_k_pct);
-                } else {
-                    System.out.println("Failed");
+
+                    chart(xySeriesCollection_letter_k, "K_means_Clustering_Letter_dataset_Avg_Silhouette_Coeff", "K variation", "Average Silhouette Coefficient", output_dir);
+                    chart(xySeriesCollection_letter_k_pct, "K_means_Clustering_Letter_dataset_Cluster_to_Class_Prediction_Correct_Pct", "K variation", "Cluster to Class Prediction Correct Percent", output_dir);
                 }
+                break;
+
+                case 2: {
+                    System.out.println("Option 2");
+                    ExecutorService pool = Executors.newFixedThreadPool(10);
+                    Collection<SimpleClusterRunner> collection = new ArrayList<SimpleClusterRunner>();
+
+                    for (int i = 1; i < 10; i++) {
+                        String training_file_name = "/letter_training_70pct_1.arff";
+
+                        InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
+
+                        BufferedReader l_training_buffer = new BufferedReader(new InputStreamReader(
+                                trainingFileStream));
+
+                        Instances l_train = new Instances(l_training_buffer);
+                        l_train.setClassIndex(l_train.numAttributes() - 1);
+
+                        weka.filters.unsupervised.attribute.Remove l_filter = new weka.filters.unsupervised.attribute.Remove();
+                        l_filter.setAttributeIndices("" + (l_train.classIndex() + 1));
+                        l_filter.setInputFormat(l_train);
+                        Instances l_trainDataClusterer = Filter.useFilter(l_train, l_filter);
+
+                        l_training_buffer.close();
+                        trainingFileStream.close();
+
+                        SimpleClusterRunner executor = new SimpleClusterRunner(i, l_trainDataClusterer, l_train, output_dir);
+                        collection.add(executor);
+                    }
+
+                    List<Future<ClusterData>> futures = pool.invokeAll(collection);
+                    for (Future<ClusterData> future : futures) {
+                        ClusterData data = future.get();
+                        if (data != null) {
+                            System.out.println("Got data for clusters: " + data.getNoOfCluster());
+                            xySeries_letter_seed.add((double) data.getNoOfCluster(), data.getAvgSilCoeff());
+                            xySeries_letter_seed_pct.add((double) data.getNoOfCluster(), data.getPctCorrect());
+
+
+                        } else {
+                            System.out.println("Failed");
+                        }
+                    }
+                    pool.shutdown();
+
+                    System.out.println("Threads completed for seeding");
+
+                    xySeriesCollection_letter_seed.addSeries(xySeries_letter_k);
+                    xySeriesCollection_letter_seed_pct.addSeries(xySeries_letter_k_pct);
+
+                    chart(xySeriesCollection_letter_seed, "K_means_Clustering_Letter_dataset_Seed_Avg_Silhouette_Coeff", "Starting instance index", "Average Silhouette Coefficient", output_dir);
+                    chart(xySeriesCollection_letter_seed_pct, "K_means_Clustering_Letter_dataset_Seed_Cluster_to_Class_Prediction_Correct_Pct", "Starting instance index", "Cluster to Class Prediction Correct Percent", output_dir);
+                }
+                break;
             }
-            pool.shutdown();
-
-            System.out.println("Threads completed");
-
-            chart(xySeriesCollection_letter_k, "K_means_Clustering_Letter_dataset_Avg_Silhouette_Coeff", "K variation", "Average Silhouette Coefficient");
-            chart(xySeriesCollection_letter_k_pct, "K_means_Clustering_Letter_dataset_Cluster_to_Class_Prediction_Correct_Pct", "K variation", "Cluster to Class Prediction Correct Percent");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private static void chart(XYSeriesCollection xySeriesCollection, String algo, String xLabel, String yLabel) throws Exception {
+
+    private static void chart(XYSeriesCollection xySeriesCollection, String algo, String xLabel, String yLabel, String output_dir) throws Exception {
 
         JFreeChart xyLineChart = ChartFactory.createXYLineChart(algo, xLabel, yLabel, xySeriesCollection, PlotOrientation.VERTICAL, true, true, false);
 

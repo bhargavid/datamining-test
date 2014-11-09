@@ -55,7 +55,10 @@ public class JobDriver {
 //                    svmService.run(params_map);
 
                 if(Algorithm.assn3.equals(algorithm))
-                    assn3Service.execute();
+                    assn3Service.execute(1, "/tmp/clustering/k");
+
+                if(Algorithm.seed.equals(algorithm))
+                    assn3Service.execute(2, "/tmp/clustering/seed");
             }
         } catch (Exception e) {
             //TODO handle exceptions properly

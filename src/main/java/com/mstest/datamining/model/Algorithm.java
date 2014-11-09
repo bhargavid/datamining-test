@@ -9,7 +9,8 @@ public enum Algorithm {
     knn("knn"),
     adaboost("adaboost"),
     svm("svm"),
-    assn3("assn3");
+    assn3("assn3"),
+    seed("seed");
 
     private String name;
 

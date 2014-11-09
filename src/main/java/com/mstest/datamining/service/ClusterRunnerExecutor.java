@@ -21,13 +21,13 @@ public class ClusterRunnerExecutor implements Callable<ClusterData> {
     private Instances l_trainDataClusterer;
     private Instances l_train;
     private int noOfCluster;
+    private String output_dir;
 
-    private static final String output_dir = "/tmp/clustering";
-
-    public ClusterRunnerExecutor(int iteration, Instances l_trainDataClusterer, Instances l_train) {
+    public ClusterRunnerExecutor(int iteration, Instances l_trainDataClusterer, Instances l_train, String output_dir) {
         this.noOfCluster = iteration;
         this.l_trainDataClusterer = l_trainDataClusterer;
         this.l_train = l_train;
+        this.output_dir = output_dir;
 
     }
 
@@ -124,6 +124,10 @@ public class ClusterRunnerExecutor implements Callable<ClusterData> {
                 + clusterEval.clusterResultsToString());
         l_bw.write("\n Correct:" + correctCnt + " Incorrect:" + incorrectCount);
         l_bw.write(Arrays.toString(clustClass));
+
+        l_bw.close();
+        l_fw.close();
+
         Double pctCorrect = (((double) correctCnt / l_train.numInstances()) * 100);
 
         ClusterData data = new ClusterData();

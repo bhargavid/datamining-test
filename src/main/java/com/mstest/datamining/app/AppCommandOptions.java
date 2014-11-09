@@ -14,4 +14,5 @@ public class AppCommandOptions {
     public static final String ADABOOST = Algorithm.adaboost.getName();
     public static final String SVM = Algorithm.svm.getName();
     public static final String ASSN3 = Algorithm.assn3.getName();
+    public static final String SEED = Algorithm.seed.getName();
 }
