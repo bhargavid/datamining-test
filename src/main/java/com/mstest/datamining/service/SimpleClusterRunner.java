@@ -33,8 +33,8 @@ public class SimpleClusterRunner implements Callable<ClusterData> {
     public ClusterData call() throws Exception {
         SimpleKMeans simplekmeans = new SimpleKMeans();
         simplekmeans.setSeed(seed);
-        simplekmeans.setMaxIterations(500);
-        simplekmeans.setNumClusters(10);
+        //simplekmeans.setMaxIterations(500);
+        simplekmeans.setNumClusters(12);
         simplekmeans.setPreserveInstancesOrder(true);
         DistanceFunction euclideanDist = new EuclideanDistance();
         simplekmeans.setDistanceFunction(euclideanDist);
