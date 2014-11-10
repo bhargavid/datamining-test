@@ -16,7 +16,7 @@ then
     exit -1
 fi
 
-while getopts "jmkso:acze" flag
+while getopts "jmkso:aczer" flag
 do
     case "$flag" in
         o) output_dir=$OPTARG;;
@@ -28,6 +28,7 @@ do
         c) assign3=1;;
         z) seed=1;;
         e) em=1;;
+        r) reduced=1;;
         *) echo "Invalid arg";;
     esac
 done
@@ -76,10 +77,15 @@ then
     ALGORITHM="--em"
 fi
 
+if [[ ! -z "$reduced" ]]
+then
+    ALGORITHM="--reduced"
+fi
+
 if [[ -z "$ALGORITHM" ]]
 then
-    echo "\nUsage: sh datamining.sh -<j|m|k|a|s|c|z|e> -o <full_path>"
-    echo "\t\t -<j|m|k|a|s|c|z|e> -> specifies the classification type"
+    echo "\nUsage: sh datamining.sh -<j|m|k|a|s|c|z|e|r> -o <full_path>"
+    echo "\t\t -<j|m|k|a|s|c|z|e|r> -> specifies the classification type"
     echo "\t\t\t j - j48"
     echo "\t\t\t m - multilayerperceptron"
     echo "\t\t\t k - knn"
@@ -88,6 +94,7 @@ then
     echo "\t\t\t c - clustering / assignment3"
     echo "\t\t\t z - clustering / seed"
     echo "\t\t\t e - clustering / em"
+    echo "\t\t\t r - clustering / reduced data set"
     echo "\t\t -o output_dir will default to /tmp/datamining-test/<algorithm>\n"
     exit
 fi
