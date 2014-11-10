@@ -22,12 +22,15 @@ public class ClusterRunnerExecutor implements Callable<ClusterData> {
     private Instances l_train;
     private int noOfCluster;
     private String output_dir;
+    private String file_name;
 
-    public ClusterRunnerExecutor(int iteration, Instances l_trainDataClusterer, Instances l_train, String output_dir) {
+
+    public ClusterRunnerExecutor(int iteration, Instances l_trainDataClusterer, Instances l_train, String output_dir, String file_name) {
         this.noOfCluster = iteration;
         this.l_trainDataClusterer = l_trainDataClusterer;
         this.l_train = l_train;
         this.output_dir = output_dir;
+        this.file_name = file_name;
 
     }
 
@@ -108,7 +111,7 @@ public class ClusterRunnerExecutor implements Callable<ClusterData> {
                 + incorrectCount);
         System.out.println(Arrays.toString(clustClass));
 
-        String fileName = output_dir + "/" + "Letter_Cluster_kMeans_OUT.txt" + "_" + noOfCluster;
+        String fileName = output_dir + "/" + file_name + "_" + "Letter_Cluster_kMeans_OUT.txt" + "_" + noOfCluster;
         FileWriter l_fw = new FileWriter(new File(fileName));
         BufferedWriter l_bw = new BufferedWriter(l_fw);
 

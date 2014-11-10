@@ -38,6 +38,7 @@ public class DataAnalyzerApp {
         options.addOption(AppCommandOptions.ASSN3, false, Algorithm.assn3.getName());
         options.addOption(AppCommandOptions.SEED, false, Algorithm.seed.getName());
         options.addOption(AppCommandOptions.EM, false, Algorithm.em.getName());
+        options.addOption(AppCommandOptions.REDUCED, false, Algorithm.reduced.getName());
 
         try {
 
@@ -83,6 +84,11 @@ public class DataAnalyzerApp {
             if (cmd.hasOption(AppCommandOptions.EM)) {
                 System.out.println("Job added "+Algorithm.em.getName());
                 jobList.add(Algorithm.em);
+            }
+
+            if (cmd.hasOption(AppCommandOptions.REDUCED)) {
+                System.out.println("Job added "+Algorithm.reduced.getName());
+                jobList.add(Algorithm.reduced);
             }
 
             String output_dir = cmd.getOptionValue(AppCommandOptions.OUTPUT_DIR);

@@ -62,7 +62,7 @@ public class Assignment3Impl implements Assignment3 {
                         l_training_buffer.close();
                         trainingFileStream.close();
 
-                        ClusterRunnerExecutor executor = new ClusterRunnerExecutor(i, l_trainDataClusterer, l_train, output_dir);
+                        ClusterRunnerExecutor executor = new ClusterRunnerExecutor(i, l_trainDataClusterer, l_train, output_dir, "");
                         collection.add(executor);
                     }
 
@@ -120,7 +120,7 @@ public class Assignment3Impl implements Assignment3 {
                         l_training_buffer.close();
                         trainingFileStream.close();
 
-                        SimpleClusterRunner executor = new SimpleClusterRunner(i, l_trainDataClusterer, l_train, output_dir);
+                        SimpleClusterRunner executor = new SimpleClusterRunner(i, l_trainDataClusterer, l_train, output_dir, "");
                         collection.add(executor);
                     }
 
@@ -182,7 +182,7 @@ public class Assignment3Impl implements Assignment3 {
                         l_training_buffer.close();
                         trainingFileStream.close();
 
-                        EMClusterRunner executor = new EMClusterRunner(i, l_EMTrainDataClusterer, l_train, output_dir);
+                        EMClusterRunner executor = new EMClusterRunner(i, l_EMTrainDataClusterer, l_train, output_dir, "");
                         collection.add(executor);
                     }
 

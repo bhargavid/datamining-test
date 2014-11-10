@@ -16,4 +16,5 @@ public class AppCommandOptions {
     public static final String ASSN3 = Algorithm.assn3.getName();
     public static final String SEED = Algorithm.seed.getName();
     public static final String EM = Algorithm.em.getName();
+    public static final String REDUCED = Algorithm.reduced.getName();
 }

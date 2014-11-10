@@ -36,6 +36,10 @@ public class JobDriver {
     @Qualifier("assn3Service")
     Assignment3 assn3Service;
 
+    @Autowired
+    @Qualifier("assn3ReducedService")
+    Assignment3Reduced assn3ReducedService;
+
     public void processJob(List<Algorithm> algorithms, Map<String, Object> params_map) {
         try {
             for(Algorithm algorithm: algorithms) {
@@ -62,6 +66,9 @@ public class JobDriver {
 
                 if(Algorithm.em.equals(algorithm))
                     assn3Service.execute(3, "/tmp/clustering/em");
+
+                if(Algorithm.reduced.equals(algorithm))
+                    assn3ReducedService.execute("/tmp/clustering/reduced");
             }
         } catch (Exception e) {
             //TODO handle exceptions properly

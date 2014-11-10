@@ -11,9 +11,7 @@ import weka.core.Instances;
 import weka.filters.Filter;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -30,188 +28,205 @@ public class Assignment3ReducedImpl implements Assignment3Reduced {
                 return;
             }
 
+            XYSeriesCollection xySeriesCollection_letter_k = new XYSeriesCollection();
+            XYSeriesCollection xySeriesCollection_letter_k_pct = new XYSeriesCollection();
+            XYSeriesCollection xySeriesCollection_letter_seed = new XYSeriesCollection();
+            XYSeriesCollection xySeriesCollection_letter_seed_pct = new XYSeriesCollection();
+            XYSeriesCollection xySeriesCollection_letter_em_k = new XYSeriesCollection();
+            XYSeriesCollection xySeriesCollection_letter_em_k_pct = new XYSeriesCollection();
+
+            Map<String, String> file_map = new HashMap<String, String>();
+
+            {
+                //fill out the files
+                //filename, k_name
+                file_map.put("letter_gainratio_train.arff", "Gain_Ratio_Dimensionality_Reduction");
+                file_map.put("letter_rp_train.arff", "Random_Projections_Dimensionality_Reduction");
+                file_map.put("letter_ica_train.arff", "ICA_Dimensionality_Reduction");
+                file_map.put("Letter_PCA_train.arff", "PCA_Dimensionality_Reduction");
+            }
+
             for(int option  = 1; option <= 3; option++) {
                 switch (option) {
                     case 1: {
-                        XYSeriesCollection xySeriesCollection_letter_k = new XYSeriesCollection();
-                        XYSeriesCollection xySeriesCollection_letter_k_pct = new XYSeriesCollection();
-                        XYSeries xySeries_letter_k = new XYSeries("K means Clustering - Letter dataset - K variation vs Avg Silhouette Coeff");
-                        XYSeries xySeries_letter_k_pct = new XYSeries("K means Clustering - Letter dataset - K variation vs Cluster to Class Percent Correct");
 
-                        System.out.println("Option 1");
-                        ExecutorService pool = Executors.newFixedThreadPool(10);
-                        Collection<ClusterRunnerExecutor> collection = new ArrayList<ClusterRunnerExecutor>();
+                        for(Map.Entry<String, String> entry: file_map.entrySet()) {
+                            XYSeries xySeries_letter_k = new XYSeries(entry.getValue());
+                            XYSeries xySeries_letter_k_pct = new XYSeries(entry.getValue());
 
-                        for (int i = 2; i < 13; i++) {
-                            String training_file_name = "/letter_training_70pct_1.arff";
+                            System.out.println("Option 1");
+                            ExecutorService pool = Executors.newFixedThreadPool(10);
+                            Collection<ClusterRunnerExecutor> collection = new ArrayList<ClusterRunnerExecutor>();
 
-                            InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
+                            for (int i = 2; i < 3; i++) {
+                                String training_file_name = "/"+entry.getKey();
 
-                            BufferedReader l_training_buffer = new BufferedReader(new InputStreamReader(
-                                    trainingFileStream));
+                                InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
 
-                            Instances l_train = new Instances(l_training_buffer);
-                            l_train.setClassIndex(l_train.numAttributes() - 1);
+                                BufferedReader l_training_buffer = new BufferedReader(new InputStreamReader(
+                                        trainingFileStream));
 
-                            weka.filters.unsupervised.attribute.Remove l_filter = new weka.filters.unsupervised.attribute.Remove();
-                            l_filter.setAttributeIndices("" + (l_train.classIndex() + 1));
-                            l_filter.setInputFormat(l_train);
-                            Instances l_trainDataClusterer = Filter.useFilter(l_train, l_filter);
+                                Instances l_train = new Instances(l_training_buffer);
+                                l_train.setClassIndex(l_train.numAttributes() - 1);
+
+                                weka.filters.unsupervised.attribute.Remove l_filter = new weka.filters.unsupervised.attribute.Remove();
+                                l_filter.setAttributeIndices("" + (l_train.classIndex() + 1));
+                                l_filter.setInputFormat(l_train);
+                                Instances l_trainDataClusterer = Filter.useFilter(l_train, l_filter);
 
 
-                            l_training_buffer.close();
-                            trainingFileStream.close();
+                                l_training_buffer.close();
+                                trainingFileStream.close();
 
-                            ClusterRunnerExecutor executor = new ClusterRunnerExecutor(i, l_trainDataClusterer, l_train, output_dir);
-                            collection.add(executor);
-                        }
-
-                        List<Future<ClusterData>> futures = pool.invokeAll(collection);
-                        for (Future<ClusterData> future : futures) {
-                            ClusterData data = future.get();
-                            if (data != null) {
-                                System.out.println("Got data for clusters: " + data.getNoOfCluster());
-                                xySeries_letter_k.add((double) data.getNoOfCluster(), data.getX());
-                                xySeries_letter_k_pct.add((double) data.getNoOfCluster(), data.getPctCorrect());
-                            } else {
-                                System.out.println("Failed");
+                                ClusterRunnerExecutor executor = new ClusterRunnerExecutor(i, l_trainDataClusterer, l_train, output_dir + "/k", entry.getKey());
+                                collection.add(executor);
                             }
+
+                            List<Future<ClusterData>> futures = pool.invokeAll(collection);
+                            for (Future<ClusterData> future : futures) {
+                                ClusterData data = future.get();
+                                if (data != null) {
+                                    System.out.println("Got data for clusters: " + data.getNoOfCluster());
+                                    xySeries_letter_k.add((double) data.getNoOfCluster(), data.getX());
+                                    xySeries_letter_k_pct.add((double) data.getNoOfCluster(), data.getPctCorrect());
+                                } else {
+                                    System.out.println("Failed");
+                                }
+                            }
+                            pool.shutdown();
+
+                            System.out.println("Threads completed");
+
+                            xySeriesCollection_letter_k.addSeries(xySeries_letter_k);
+                            xySeriesCollection_letter_k_pct.addSeries(xySeries_letter_k_pct);
                         }
-                        pool.shutdown();
-
-                        System.out.println("Threads completed");
-
-                        xySeriesCollection_letter_k.addSeries(xySeries_letter_k);
-                        xySeriesCollection_letter_k_pct.addSeries(xySeries_letter_k_pct);
-
-                        chart(xySeriesCollection_letter_k, "K_means_Clustering_Letter_dataset_Avg_Silhouette_Coeff", "K variation", "Average Silhouette Coefficient", output_dir);
-                        chart(xySeriesCollection_letter_k_pct, "K_means_Clustering_Letter_dataset_Cluster_to_Class_Prediction_Correct_Pct", "K variation", "Cluster to Class Prediction Correct Percent", output_dir);
                     }
                     break;
 
                     case 2: {
 
-                        XYSeriesCollection xySeriesCollection_letter_seed = new XYSeriesCollection();
-                        XYSeriesCollection xySeriesCollection_letter_seed_pct = new XYSeriesCollection();
-                        XYSeries xySeries_letter_seed = new XYSeries("K means Clustering - Letter dataset - Starting instance variation vs Avg Silhouette Coeff");
-                        XYSeries xySeries_letter_seed_pct = new XYSeries("K means Clustering - Letter dataset - Starting instance variation vs Cluster to Class Percent Correct");
+                        for(Map.Entry<String, String> entry: file_map.entrySet()) {
+                            XYSeries xySeries_letter_seed = new XYSeries(entry.getValue());
+                            XYSeries xySeries_letter_seed_pct = new XYSeries(entry.getValue());
 
 
-                        System.out.println("Option 2");
-                        ExecutorService pool = Executors.newFixedThreadPool(10);
-                        Collection<SimpleClusterRunner> collection = new ArrayList<SimpleClusterRunner>();
+                            System.out.println("Option 2");
+                            ExecutorService pool = Executors.newFixedThreadPool(10);
+                            Collection<SimpleClusterRunner> collection = new ArrayList<SimpleClusterRunner>();
 
-                        for (int i = 1; i < 10; i++) {
-                            String training_file_name = "/letter_training_70pct_1.arff";
+                            for (int i = 1; i < 2; i++) {
+                                String training_file_name = "/"+entry.getKey();
 
-                            InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
+                                InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
 
-                            BufferedReader l_training_buffer = new BufferedReader(new InputStreamReader(
-                                    trainingFileStream));
+                                BufferedReader l_training_buffer = new BufferedReader(new InputStreamReader(
+                                        trainingFileStream));
 
-                            Instances l_train = new Instances(l_training_buffer);
-                            l_train.setClassIndex(l_train.numAttributes() - 1);
+                                Instances l_train = new Instances(l_training_buffer);
+                                l_train.setClassIndex(l_train.numAttributes() - 1);
 
-                            weka.filters.unsupervised.attribute.Remove l_filter = new weka.filters.unsupervised.attribute.Remove();
-                            l_filter.setAttributeIndices("" + (l_train.classIndex() + 1));
-                            l_filter.setInputFormat(l_train);
-                            Instances l_trainDataClusterer = Filter.useFilter(l_train, l_filter);
+                                weka.filters.unsupervised.attribute.Remove l_filter = new weka.filters.unsupervised.attribute.Remove();
+                                l_filter.setAttributeIndices("" + (l_train.classIndex() + 1));
+                                l_filter.setInputFormat(l_train);
+                                Instances l_trainDataClusterer = Filter.useFilter(l_train, l_filter);
 
-                            l_training_buffer.close();
-                            trainingFileStream.close();
+                                l_training_buffer.close();
+                                trainingFileStream.close();
 
-                            SimpleClusterRunner executor = new SimpleClusterRunner(i, l_trainDataClusterer, l_train, output_dir);
-                            collection.add(executor);
-                        }
-
-                        List<Future<ClusterData>> futures = pool.invokeAll(collection);
-                        for (Future<ClusterData> future : futures) {
-                            ClusterData data = future.get();
-                            if (data != null) {
-                                System.out.println("Got data for clusters: " + data.getNoOfCluster());
-                                xySeries_letter_seed.add((double) data.getNoOfCluster(), data.getX());
-                                xySeries_letter_seed_pct.add((double) data.getNoOfCluster(), data.getPctCorrect());
-
-
-                            } else {
-                                System.out.println("Failed");
+                                SimpleClusterRunner executor = new SimpleClusterRunner(i, l_trainDataClusterer, l_train, output_dir + "/seed", entry.getKey());
+                                collection.add(executor);
                             }
+
+                            List<Future<ClusterData>> futures = pool.invokeAll(collection);
+                            for (Future<ClusterData> future : futures) {
+                                ClusterData data = future.get();
+                                if (data != null) {
+                                    System.out.println("Got data for clusters: " + data.getNoOfCluster());
+                                    xySeries_letter_seed.add((double) data.getNoOfCluster(), data.getX());
+                                    xySeries_letter_seed_pct.add((double) data.getNoOfCluster(), data.getPctCorrect());
+
+
+                                } else {
+                                    System.out.println("Failed");
+                                }
+                            }
+                            pool.shutdown();
+
+                            System.out.println("Threads completed for seeding");
+
+                            xySeriesCollection_letter_seed.addSeries(xySeries_letter_seed);
+                            xySeriesCollection_letter_seed_pct.addSeries(xySeries_letter_seed_pct);
                         }
-                        pool.shutdown();
-
-                        System.out.println("Threads completed for seeding");
-
-                        xySeriesCollection_letter_seed.addSeries(xySeries_letter_seed);
-                        xySeriesCollection_letter_seed_pct.addSeries(xySeries_letter_seed_pct);
-
-                        chart(xySeriesCollection_letter_seed, "K_means_Clustering_Letter_dataset_Seed_Avg_Silhouette_Coeff", "Starting instance index", "Average Silhouette Coefficient", output_dir);
-                        chart(xySeriesCollection_letter_seed_pct, "K_means_Clustering_Letter_dataset_Seed_Cluster_to_Class_Prediction_Correct_Pct", "Starting instance index", "Cluster to Class Prediction Correct Percent", output_dir);
                     }
                     break;
 
                     case 3: {
 
-                        XYSeriesCollection xySeriesCollection_letter_em_k = new XYSeriesCollection();
-                        XYSeriesCollection xySeriesCollection_letter_em_k_pct = new XYSeriesCollection();
-                        XYSeries xySeries_letter_em_k = new XYSeries("EM Clustering - Letter dataset - No. of Clusters variation vs Loglikelihood");
-                        XYSeries xySeries_letter_em_k_pct = new XYSeries("EM Clustering - Letter dataset - No. of Clusters variation vs Cluster to Class Percent Correct");
+                        for(Map.Entry<String, String> entry: file_map.entrySet()) {
+                            XYSeries xySeries_letter_em_k = new XYSeries(entry.getValue());
+                            XYSeries xySeries_letter_em_k_pct = new XYSeries(entry.getValue());
 
 
-                        System.out.println("Option 3");
-                        ExecutorService pool = Executors.newFixedThreadPool(10);
-                        Collection<EMClusterRunner> collection = new ArrayList<EMClusterRunner>();
+                            System.out.println("Option 3");
+                            ExecutorService pool = Executors.newFixedThreadPool(10);
+                            Collection<EMClusterRunner> collection = new ArrayList<EMClusterRunner>();
 
-                        for (int i = 2; i < 13; i++) {
-                            String training_file_name = "/letter_training_70pct_1.arff";
+                            for (int i = 2; i < 3; i++) {
+                                String training_file_name = "/"+entry.getKey();
 
-                            InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
+                                InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
 
-                            BufferedReader l_training_buffer = new BufferedReader(new InputStreamReader(
-                                    trainingFileStream));
+                                BufferedReader l_training_buffer = new BufferedReader(new InputStreamReader(
+                                        trainingFileStream));
 
-                            Instances l_train = new Instances(l_training_buffer);
-                            l_train.setClassIndex(l_train.numAttributes() - 1);
+                                Instances l_train = new Instances(l_training_buffer);
+                                l_train.setClassIndex(l_train.numAttributes() - 1);
 
-                            weka.filters.unsupervised.attribute.Remove EMTrainfilter_l = new weka.filters.unsupervised.attribute.Remove();
+                                weka.filters.unsupervised.attribute.Remove EMTrainfilter_l = new weka.filters.unsupervised.attribute.Remove();
 
-                            EMTrainfilter_l.setAttributeIndices("" + (l_train.classIndex() + 1));
-                            EMTrainfilter_l.setInputFormat(l_train);
-                            Instances l_EMTrainDataClusterer = Filter.useFilter(l_train, EMTrainfilter_l);
+                                EMTrainfilter_l.setAttributeIndices("" + (l_train.classIndex() + 1));
+                                EMTrainfilter_l.setInputFormat(l_train);
+                                Instances l_EMTrainDataClusterer = Filter.useFilter(l_train, EMTrainfilter_l);
 
 
-                            l_training_buffer.close();
-                            trainingFileStream.close();
+                                l_training_buffer.close();
+                                trainingFileStream.close();
 
-                            EMClusterRunner executor = new EMClusterRunner(i, l_EMTrainDataClusterer, l_train, output_dir);
-                            collection.add(executor);
-                        }
-
-                        List<Future<ClusterData>> futures = pool.invokeAll(collection);
-                        for (Future<ClusterData> future : futures) {
-                            ClusterData data = future.get();
-                            if (data != null) {
-                                System.out.println("Got data for clusters: " + data.getNoOfCluster());
-                                xySeries_letter_em_k.add((double) data.getNoOfCluster(), data.getX());
-                                xySeries_letter_em_k_pct.add((double) data.getNoOfCluster(), data.getPctCorrect());
-                            } else {
-                                System.out.println("Failed");
+                                EMClusterRunner executor = new EMClusterRunner(i, l_EMTrainDataClusterer, l_train, output_dir + "/em", entry.getKey());
+                                collection.add(executor);
                             }
+
+                            List<Future<ClusterData>> futures = pool.invokeAll(collection);
+                            for (Future<ClusterData> future : futures) {
+                                ClusterData data = future.get();
+                                if (data != null) {
+                                    System.out.println("Got data for clusters: " + data.getNoOfCluster());
+                                    xySeries_letter_em_k.add((double) data.getNoOfCluster(), data.getX());
+                                    xySeries_letter_em_k_pct.add((double) data.getNoOfCluster(), data.getPctCorrect());
+                                } else {
+                                    System.out.println("Failed");
+                                }
+                            }
+                            pool.shutdown();
+
+                            System.out.println("Threads completed for em");
+
+                            xySeriesCollection_letter_em_k.addSeries(xySeries_letter_em_k);
+                            xySeriesCollection_letter_em_k_pct.addSeries(xySeries_letter_em_k_pct);
                         }
-                        pool.shutdown();
-
-                        System.out.println("Threads completed for em");
-
-                        xySeriesCollection_letter_em_k.addSeries(xySeries_letter_em_k);
-                        xySeriesCollection_letter_em_k_pct.addSeries(xySeries_letter_em_k_pct);
-
-                        chart(xySeriesCollection_letter_em_k, "EM_Clustering_Letter_dataset_Clusters_variation_vs_Loglikelihood", "No. of Clusters variation", "Loglikelihood", output_dir);
-                        chart(xySeriesCollection_letter_em_k_pct, "EM Clustering_Letter_dataset_Clusters_variation_vs_Cluster_to_Class_Prediction_Correct_Pct", "No. of Clusters variation", "Cluster to Class Prediction Correct Percent", output_dir);
                     }
                     break;
 
                     default:
                         break;
                 }
+
+                chart(xySeriesCollection_letter_k, "K means Clustering - Dim Reduced Letter dataset - number of clusters (K) vs Avg Silhouette Coeff", "K variation", "Average Silhouette Coefficient", output_dir);
+                chart(xySeriesCollection_letter_k_pct, "K means Clustering - Dim Reduced Letter dataset - number of clusters (K) vs Cluster to Class Prediction Correct Pct", "K variation", "Cluster to Class Prediction Correct Percent", output_dir);
+                chart(xySeriesCollection_letter_seed, "K means Clustering - Dim Reduced Letter dataset - Starting instance variation vs Avg Silhouette Coeff", "Starting instance index", "Average Silhouette Coefficient", output_dir);
+                chart(xySeriesCollection_letter_seed_pct, "K means Clustering - Dim Reduced Letter dataset - Starting instance variation vs Cluster to Class Prediction Correct Pct", "Starting instance index", "Cluster to Class Prediction Correct Percent", output_dir);
+                chart(xySeriesCollection_letter_em_k, "K means Clustering - Dim Reduced Letter dataset - Starting instance variation vs Avg Silhouette Coeff", "Starting instance index", "Average Silhouette Coefficient", output_dir);
+                chart(xySeriesCollection_letter_em_k_pct, "K means Clustering - Dim Reduced Letter dataset - Starting instance variation vs Cluster to Class Prediction Correct Pct", "Starting instance index", "Cluster to Class Prediction Correct Percent", output_dir);
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());

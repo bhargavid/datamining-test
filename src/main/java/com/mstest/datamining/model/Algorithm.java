@@ -11,7 +11,8 @@ public enum Algorithm {
     svm("svm"),
     assn3("assn3"),
     seed("seed"),
-    em("em");
+    em("em"),
+    reduced("reduced");
 
     private String name;
 

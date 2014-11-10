@@ -22,12 +22,14 @@ public class SimpleClusterRunner implements Callable<ClusterData> {
     private Instances l_train;
     private int seed;
     private String output_dir;
+    private String file_name;
 
-    public SimpleClusterRunner(int seed, Instances l_trainDataClusterer, Instances l_train, String output_dir) {
+    public SimpleClusterRunner(int seed, Instances l_trainDataClusterer, Instances l_train, String output_dir, String file_name) {
         this.seed = seed;
         this.l_trainDataClusterer = l_trainDataClusterer;
         this.l_train = l_train;
         this.output_dir = output_dir;
+        this.file_name = file_name;
     }
 
     public ClusterData call() throws Exception {
@@ -96,7 +98,7 @@ public class SimpleClusterRunner implements Callable<ClusterData> {
         System.out.println("\n Correct:"+correctCnt+" Incorrect:"+incorrectCount);
         System.out.println(Arrays.toString(clustClass));
 
-        String fileName = output_dir + "/" + "Letter_Cluster_Seed_kMeans_OUT.txt" + "_" + seed;
+        String fileName = output_dir + "/" + file_name + "_" + "Letter_Cluster_Seed_kMeans_OUT.txt" + "_" + seed;
         FileWriter l_fw = new FileWriter(new File(fileName));
         BufferedWriter l_bw = new BufferedWriter(l_fw);
 

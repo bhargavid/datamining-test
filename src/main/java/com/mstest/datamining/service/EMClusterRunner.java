@@ -18,12 +18,14 @@ public class EMClusterRunner implements Callable<ClusterData>{
     private Instances l_train;
     private int noOfCluster;
     private String output_dir;
+    private String file_name;
 
-    public EMClusterRunner(int noOfCluster, Instances l_EMTrainDataClusterer, Instances l_train, String output_dir) {
+    public EMClusterRunner(int noOfCluster, Instances l_EMTrainDataClusterer, Instances l_train, String output_dir, String file_name) {
         this.noOfCluster = noOfCluster;
         this.l_EMTrainDataClusterer = l_EMTrainDataClusterer;
         this.l_train = l_train;
         this.output_dir = output_dir;
+        this.file_name = file_name;
     }
 
     public ClusterData call() throws Exception {
@@ -82,7 +84,7 @@ public class EMClusterRunner implements Callable<ClusterData>{
         System.out.println("Cluster Eval Results:"+emClusterEval.clusterResultsToString());
         System.out.println("\n Correct:"+correctCnt+" Incorrect:"+incorrectCount);
 
-        String fileName = output_dir + "/" + "Letter_Cluster_EM_OUT.txt" + "_" + noOfCluster;
+        String fileName = output_dir + "/" + file_name + "_" + "Letter_Cluster_EM_OUT.txt" + "_" + noOfCluster;
         FileWriter l_fw = new FileWriter(new File(fileName));
         BufferedWriter l_bw = new BufferedWriter(l_fw);
 
