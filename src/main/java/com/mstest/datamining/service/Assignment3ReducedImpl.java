@@ -58,7 +58,7 @@ public class Assignment3ReducedImpl implements Assignment3Reduced {
                             ExecutorService pool = Executors.newFixedThreadPool(10);
                             Collection<ClusterRunnerExecutor> collection = new ArrayList<ClusterRunnerExecutor>();
 
-                            for (int i = 2; i < 3; i++) {
+                            for (int i = 2; i < 5; i++) {
                                 String training_file_name = "/"+entry.getKey();
 
                                 InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
@@ -114,7 +114,7 @@ public class Assignment3ReducedImpl implements Assignment3Reduced {
                             ExecutorService pool = Executors.newFixedThreadPool(10);
                             Collection<SimpleClusterRunner> collection = new ArrayList<SimpleClusterRunner>();
 
-                            for (int i = 1; i < 2; i++) {
+                            for (int i = 1; i < 4; i++) {
                                 String training_file_name = "/"+entry.getKey();
 
                                 InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
@@ -171,7 +171,7 @@ public class Assignment3ReducedImpl implements Assignment3Reduced {
                             ExecutorService pool = Executors.newFixedThreadPool(10);
                             Collection<EMClusterRunner> collection = new ArrayList<EMClusterRunner>();
 
-                            for (int i = 2; i < 3; i++) {
+                            for (int i = 2; i < 5; i++) {
                                 String training_file_name = "/"+entry.getKey();
 
                                 InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
