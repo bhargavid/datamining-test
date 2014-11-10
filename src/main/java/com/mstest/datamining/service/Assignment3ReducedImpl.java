@@ -28,6 +28,24 @@ public class Assignment3ReducedImpl implements Assignment3Reduced {
                 return;
             }
 
+            theDir = new File(output_dir+"/k");
+            if (!FileUtil.createDirs(theDir)) {
+                System.out.println("ERROR:: Failed to create output directory k. " + output_dir);
+                return;
+            }
+
+            theDir = new File(output_dir+"/seed");
+            if (!FileUtil.createDirs(theDir)) {
+                System.out.println("ERROR:: Failed to create output directory seed. " + output_dir);
+                return;
+            }
+
+            theDir = new File(output_dir+"/em");
+            if (!FileUtil.createDirs(theDir)) {
+                System.out.println("ERROR:: Failed to create output directory em. " + output_dir);
+                return;
+            }
+
             XYSeriesCollection xySeriesCollection_letter_k = new XYSeriesCollection();
             XYSeriesCollection xySeriesCollection_letter_k_pct = new XYSeriesCollection();
             XYSeriesCollection xySeriesCollection_letter_seed = new XYSeriesCollection();

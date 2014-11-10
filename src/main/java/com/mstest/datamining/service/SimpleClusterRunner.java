@@ -34,13 +34,6 @@ public class SimpleClusterRunner implements Callable<ClusterData> {
     }
 
     public ClusterData call() throws Exception {
-
-        File theDir = new File(output_dir);
-        if (!FileUtil.createDirs(theDir)) {
-            System.out.println("ERROR:: Failed to create output directory. " + output_dir);
-            return null;
-        }
-
         SimpleKMeans simplekmeans = new SimpleKMeans();
         simplekmeans.setSeed(seed);
         //simplekmeans.setMaxIterations(500);
