@@ -58,7 +58,7 @@ public class Assignment3ReducedImpl implements Assignment3Reduced {
                             ExecutorService pool = Executors.newFixedThreadPool(10);
                             Collection<ClusterRunnerExecutor> collection = new ArrayList<ClusterRunnerExecutor>();
 
-                            for (int i = 2; i < 5; i++) {
+                            for (int i = 2; i < 10; i++) {
                                 String training_file_name = "/"+entry.getKey();
 
                                 InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
@@ -114,7 +114,7 @@ public class Assignment3ReducedImpl implements Assignment3Reduced {
                             ExecutorService pool = Executors.newFixedThreadPool(10);
                             Collection<SimpleClusterRunner> collection = new ArrayList<SimpleClusterRunner>();
 
-                            for (int i = 1; i < 4; i++) {
+                            for (int i = 1; i < 10; i++) {
                                 String training_file_name = "/"+entry.getKey();
 
                                 InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
@@ -171,7 +171,7 @@ public class Assignment3ReducedImpl implements Assignment3Reduced {
                             ExecutorService pool = Executors.newFixedThreadPool(10);
                             Collection<EMClusterRunner> collection = new ArrayList<EMClusterRunner>();
 
-                            for (int i = 2; i < 5; i++) {
+                            for (int i = 2; i < 10; i++) {
                                 String training_file_name = "/"+entry.getKey();
 
                                 InputStream trainingFileStream = getClass().getResourceAsStream(training_file_name);
@@ -220,14 +220,13 @@ public class Assignment3ReducedImpl implements Assignment3Reduced {
                     default:
                         break;
                 }
-
-                chart(xySeriesCollection_letter_k, "K means Clustering - Dim Reduced Letter dataset - number of clusters (K) vs Avg Silhouette Coeff", "K variation", "Average Silhouette Coefficient", output_dir);
-                chart(xySeriesCollection_letter_k_pct, "K means Clustering - Dim Reduced Letter dataset - number of clusters (K) vs Cluster to Class Prediction Correct Pct", "K variation", "Cluster to Class Prediction Correct Percent", output_dir);
-                chart(xySeriesCollection_letter_seed, "K means Clustering - Dim Reduced Letter dataset - Starting instance variation vs Avg Silhouette Coeff", "Starting instance index", "Average Silhouette Coefficient", output_dir);
-                chart(xySeriesCollection_letter_seed_pct, "K means Clustering - Dim Reduced Letter dataset - Starting instance variation vs Cluster to Class Prediction Correct Pct", "Starting instance index", "Cluster to Class Prediction Correct Percent", output_dir);
-                chart(xySeriesCollection_letter_em_k, "K means Clustering - EM Clustering - Dim Red Bank dataset - No. of Clusters variation vs Loglikelihood", "Starting instance index", "Average Silhouette Coefficient", output_dir);
-                chart(xySeriesCollection_letter_em_k_pct, "K means Clustering - EM Clustering - Dim Red Bank dataset - No. of Clusters variation vs Cluster to Class Prediction Correct Pct", "Starting instance index", "Cluster to Class Prediction Correct Percent", output_dir);
             }
+            chart(xySeriesCollection_letter_k, "K means Clustering - Dim Reduced Letter dataset - number of clusters (K) vs Avg Silhouette Coeff", "K variation", "Average Silhouette Coefficient", output_dir);
+            chart(xySeriesCollection_letter_k_pct, "K means Clustering - Dim Reduced Letter dataset - number of clusters (K) vs Cluster to Class Prediction Correct Pct", "K variation", "Cluster to Class Prediction Correct Percent", output_dir);
+            chart(xySeriesCollection_letter_seed, "K means Clustering - Dim Reduced Letter dataset - Starting instance variation vs Avg Silhouette Coeff", "Starting instance index", "Average Silhouette Coefficient", output_dir);
+            chart(xySeriesCollection_letter_seed_pct, "K means Clustering - Dim Reduced Letter dataset - Starting instance variation vs Cluster to Class Prediction Correct Pct", "Starting instance index", "Cluster to Class Prediction Correct Percent", output_dir);
+            chart(xySeriesCollection_letter_em_k, "K means Clustering - EM Clustering - Dim Red Bank dataset - No. of Clusters variation vs Loglikelihood", "Starting instance index", "Average Silhouette Coefficient", output_dir);
+            chart(xySeriesCollection_letter_em_k_pct, "K means Clustering - EM Clustering - Dim Red Bank dataset - No. of Clusters variation vs Cluster to Class Prediction Correct Pct", "Starting instance index", "Cluster to Class Prediction Correct Percent", output_dir);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

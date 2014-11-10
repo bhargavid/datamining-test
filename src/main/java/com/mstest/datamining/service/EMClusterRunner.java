@@ -1,5 +1,6 @@
 package com.mstest.datamining.service;
 
+import com.mstest.datamining.utils.FileUtil;
 import weka.clusterers.ClusterEvaluation;
 import weka.clusterers.EM;
 import weka.core.Instances;
@@ -29,6 +30,13 @@ public class EMClusterRunner implements Callable<ClusterData>{
     }
 
     public ClusterData call() throws Exception {
+
+        File theDir = new File(output_dir);
+        if (!FileUtil.createDirs(theDir)) {
+            System.out.println("ERROR:: Failed to create output directory. " + output_dir);
+            return null;
+        }
+
         EM emCluster = new EM();
         emCluster.setNumClusters(noOfCluster);
         emCluster.setSeed(10);
